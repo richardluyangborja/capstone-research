@@ -44,7 +44,7 @@ export type ClientTableRow = {
     profileHref?: string
     profileFallback?: string
   }
-  recentActivity?: Date
+  recent_activity?: Date
 }
 
 export default function ClientTable() {
@@ -130,7 +130,7 @@ export default function ClientTable() {
                       <span>{client.sales_representative.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{client.recentActivity?.toDateString()}</TableCell>
+                  <TableCell>{client.recent_activity?.toDateString()}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

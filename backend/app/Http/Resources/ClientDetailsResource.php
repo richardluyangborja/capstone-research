@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ClientResource extends JsonResource
+class ClientDetailsResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
@@ -18,6 +18,10 @@ class ClientResource extends JsonResource
 
             'notes' => $this->notes,
 
+            'created_at' => $this->created_at,
+
+            'recent_activity' => $this->recent_activity,
+
             'company' => [
                 'id' => $this->company->id,
                 'name' => $this->company->name,
@@ -28,14 +32,21 @@ class ClientResource extends JsonResource
                 'website' => $this->company->website,
             ],
 
+            'contacts' => $this->company->contacts->map(
+                fn ($contact) => [
+                    'id' => $contact->id,
+                    'name' => "{$contact->first_name} {$contact->last_name}",
+                    'title' => $contact->title,
+                    'email' => $contact->email,
+                    'phone' => $contact->phone,
+                    'is_primary' => $contact->is_primary,
+                ]
+            ),
+
             'sales_representative' => [
                 'id' => $this->assignedTo->id,
                 'name' => $this->assignedTo->name,
             ],
-
-            'created_at' => $this->created_at,
-
-            'recent_activity' => $this->recent_activity,
         ];
     }
 }

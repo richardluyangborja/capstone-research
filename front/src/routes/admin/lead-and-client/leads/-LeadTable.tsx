@@ -28,6 +28,7 @@ import { Spinner } from "@/components/ui/spinner"
 export type LeadTableRow = {
   id: number
   company: {
+    id: number
     name: string
     industry: string
     logoHref?: string
@@ -44,7 +45,7 @@ export type LeadTableRow = {
     profileHref?: string
     profileFallback?: string
   }
-  recentActivity?: Date
+  recent_activity?: Date
 }
 
 export default function LeadTable() {
@@ -138,7 +139,7 @@ export default function LeadTable() {
                       <span>{lead.sales_representative.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{lead.recentActivity?.toDateString()}</TableCell>
+                  <TableCell>{lead.recent_activity?.toDateString()}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

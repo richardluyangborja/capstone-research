@@ -212,5 +212,113 @@ class CrmSeeder extends Seeder
             'client_since' => now()->subMonths(8)->toDateString(),
             'notes' => 'Active manpower service client.',
         ]);
+
+        Client::create([
+            'company_id' => $abcManufacturing->id,
+            'assigned_to_id' => $maria->id,
+            'status' => ClientStatus::ACTIVE,
+            'client_since' => now()->subMonths(5)->toDateString(),
+            'notes' => 'Long-term manufacturing workforce partner.',
+        ]);
+
+        Client::create([
+            'company_id' => $primeLogistics->id,
+            'assigned_to_id' => $juan->id,
+            'status' => ClientStatus::ACTIVE,
+            'client_since' => now()->subMonths(3)->toDateString(),
+            'notes' => 'Logistics staffing and warehouse personnel provider.',
+        ]);
+
+        Client::create([
+            'company_id' => $goldenFoods->id,
+            'assigned_to_id' => $maria->id,
+            'status' => ClientStatus::ACTIVE,
+            'client_since' => now()->subMonths(1)->toDateString(),
+            'notes' => 'Food and beverage production manpower client.',
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Opportunities
+        |--------------------------------------------------------------------------
+        */
+
+        \App\Models\Opportunity::create([
+            'company_id' => $abcManufacturing->id,
+            'lead_id' => $abcManufacturing->leads()->first()->id ?? null,
+            'client_id' => $abcManufacturing->client->id ?? null,
+            'assigned_to_id' => $maria->id,
+            'title' => 'Production Line Staffing',
+            'description' => 'Supply 50 production workers for 12 months.',
+            'stage' => \App\Enums\OpportunityStage::PROPOSAL,
+            'manpower_requirement' => 50,
+            'estimated_contract_value' => 1800000.00,
+            'expected_close_date' => now()->addMonths(2)->toDateString(),
+        ]);
+
+        \App\Models\Opportunity::create([
+            'company_id' => $primeLogistics->id,
+            'lead_id' => $primeLogistics->leads()->first()->id ?? null,
+            'client_id' => $primeLogistics->client->id ?? null,
+            'assigned_to_id' => $juan->id,
+            'title' => 'Warehouse Associate Deployment',
+            'description' => 'Provide 30 warehouse associates for peak season.',
+            'stage' => \App\Enums\OpportunityStage::NEGOTIATION,
+            'manpower_requirement' => 30,
+            'estimated_contract_value' => 960000.00,
+            'expected_close_date' => now()->addMonth()->toDateString(),
+        ]);
+
+        \App\Models\Opportunity::create([
+            'company_id' => $metroRetail->id,
+            'lead_id' => null,
+            'client_id' => $metroRetail->client->id ?? null,
+            'assigned_to_id' => $juan->id,
+            'title' => 'Seasonal Store Staffing',
+            'description' => 'Deploy 20 sales associates for holiday season.',
+            'stage' => \App\Enums\OpportunityStage::WON,
+            'manpower_requirement' => 20,
+            'estimated_contract_value' => 720000.00,
+            'expected_close_date' => now()->subWeek()->toDateString(),
+        ]);
+
+        \App\Models\Opportunity::create([
+            'company_id' => $goldenFoods->id,
+            'lead_id' => $goldenFoods->leads()->first()->id ?? null,
+            'client_id' => $goldenFoods->client->id ?? null,
+            'assigned_to_id' => $maria->id,
+            'title' => 'Packaging Line Support',
+            'description' => 'Supply 25 packaging line helpers for 6 months.',
+            'stage' => \App\Enums\OpportunityStage::DISCUSSION,
+            'manpower_requirement' => 25,
+            'estimated_contract_value' => 540000.00,
+            'expected_close_date' => now()->addMonths(3)->toDateString(),
+        ]);
+
+        \App\Models\Opportunity::create([
+            'company_id' => $pacificProperties->id,
+            'lead_id' => $pacificProperties->leads()->first()->id ?? null,
+            'client_id' => null,
+            'assigned_to_id' => $juan->id,
+            'title' => 'Construction Site Manpower',
+            'description' => 'Provide general helpers for ongoing construction projects.',
+            'stage' => \App\Enums\OpportunityStage::INITIAL_CONTACT,
+            'manpower_requirement' => 40,
+            'estimated_contract_value' => 1200000.00,
+            'expected_close_date' => now()->addMonths(4)->toDateString(),
+        ]);
+
+        \App\Models\Opportunity::create([
+            'company_id' => $metroRetail->id,
+            'lead_id' => null,
+            'client_id' => $metroRetail->client->id ?? null,
+            'assigned_to_id' => $juan->id,
+            'title' => 'Inventory Staffing',
+            'description' => 'Supply 15 inventory clerks for warehouse operations.',
+            'stage' => \App\Enums\OpportunityStage::CONTRACT_PROCESSING,
+            'manpower_requirement' => 15,
+            'estimated_contract_value' => 450000.00,
+            'expected_close_date' => now()->addWeeks(2)->toDateString(),
+        ]);
     }
 }

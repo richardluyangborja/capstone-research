@@ -57,3 +57,18 @@ export type Client = {
   createdAt: Date
   updatedAt: Date
 }
+
+export type OpportunityStage = "initial_contact" | "discussion" | "proposal" | "negotiation" | "contract_processing" | "won" | "lost"
+
+export type Opportunity = {
+  id: number
+  title: string
+  stage: OpportunityStage
+  companyId: number
+  leadId: number | null
+  assignedToId: number
+  estimatedContractValue: number | null
+  expectedCloseDate: string | null
+  createdAt: Date
+  updatedAt: Date
+}

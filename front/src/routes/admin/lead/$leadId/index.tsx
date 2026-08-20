@@ -42,7 +42,7 @@ export type LeadInfoPage = {
     profileFallback?: string
   }
   created_at: string
-  recentActivity?: Date
+  recent_activity?: Date
   company: {
     logoHref?: string
     logoFallback?: string
@@ -218,7 +218,7 @@ function LeadInfoCard({ lead }: { lead: LeadInfoPage }) {
             <span className="block text-sm text-muted-foreground">
               Recent Activity
             </span>
-            <span>{lead.recentActivity?.toDateString()}</span>
+             <span>{lead.recent_activity?.toDateString()}</span>
           </div>
         </CardContent>
       </Card>

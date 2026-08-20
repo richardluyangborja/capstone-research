@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ClientDetailsResource;
 use App\Http\Resources\ClientResource;
 use App\Models\Client;
 
@@ -27,6 +28,6 @@ class ClientController extends Controller
             'assignedTo',
         ]);
 
-        return new ClientResource($client);
+        return new ClientDetailsResource($client);
     }
 }

@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\OpportunityController;
 use App\Http\Controllers\SalesRepresentativeController;
+use App\Http\Controllers\WinOpportunityController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +27,13 @@ Route::middleware('auth:sanctum')->group(function () {
         [SalesRepresentativeController::class, 'index']
     );
 
+    Route::get('companies', [CompanyController::class, 'index']);
+
     Route::apiResource('clients', ClientController::class)
         ->only(['index', 'show']);
+
+    Route::apiResource('opportunities', OpportunityController::class)
+        ->except(['destroy']);
+
+    Route::post('opportunities/{opportunity}/win', [WinOpportunityController::class, 'win']);
 });

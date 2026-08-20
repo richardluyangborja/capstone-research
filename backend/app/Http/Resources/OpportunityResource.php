@@ -5,37 +5,33 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ClientResource extends JsonResource
+class OpportunityResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
 
-            'status' => $this->status,
+            'title' => $this->title,
 
-            'client_since' => $this->client_since,
-
-            'notes' => $this->notes,
+            'stage' => $this->stage->value,
 
             'company' => [
                 'id' => $this->company->id,
                 'name' => $this->company->name,
                 'industry' => $this->company->industry,
-                'address' => $this->company->address,
-                'phone' => $this->company->phone,
-                'email' => $this->company->email,
-                'website' => $this->company->website,
             ],
 
-            'sales_representative' => [
+            'assigned_to' => [
                 'id' => $this->assignedTo->id,
                 'name' => $this->assignedTo->name,
             ],
 
-            'created_at' => $this->created_at,
+            'estimated_contract_value' => $this->estimated_contract_value,
 
-            'recent_activity' => $this->recent_activity,
+            'expected_close_date' => $this->expected_close_date,
+
+            'created_at' => $this->created_at,
         ];
     }
 }

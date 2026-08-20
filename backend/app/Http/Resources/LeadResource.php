@@ -45,6 +45,8 @@ class LeadResource extends JsonResource
             ],
 
             'created_at' => $this->created_at,
+
+            'recent_activity' => $this->recent_activity,
         ];
     }
 }

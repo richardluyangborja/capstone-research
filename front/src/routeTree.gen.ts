@@ -14,11 +14,15 @@ import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as AdminLeadAndClientRouteRouteImport } from './routes/admin/lead-and-client/route'
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as AdminDashboardAndAnalyticsIndexRouteImport } from './routes/admin/dashboard-and-analytics/index'
+import { Route as AdminOpportunitiesIndexRouteImport } from './routes/admin/opportunities/index'
 import { Route as AdminClientClientIdIndexRouteImport } from './routes/admin/client/$clientId/index'
 import { Route as AdminLeadAndClientClientsIndexRouteImport } from './routes/admin/lead-and-client/clients/index'
 import { Route as AdminLeadAndClientLeadsIndexRouteImport } from './routes/admin/lead-and-client/leads/index'
 import { Route as AdminLeadLeadIdIndexRouteImport } from './routes/admin/lead/$leadId/index'
 import { Route as AdminLeadCreateIndexRouteImport } from './routes/admin/lead/create/index'
+import { Route as AdminOpportunityOpportunityIdIndexRouteImport } from './routes/admin/opportunity/$opportunityId/index'
+import { Route as AdminOpportunityCreateIndexRouteImport } from './routes/admin/opportunity/create/index'
+import { Route as AdminOpportunityOpportunityIdEditIndexRouteImport } from './routes/admin/opportunity/$opportunityId/edit/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +50,11 @@ const AdminDashboardAndAnalyticsIndexRoute =
     path: '/dashboard-and-analytics/',
     getParentRoute: () => AdminRouteRoute,
   } as any)
+const AdminOpportunitiesIndexRoute = AdminOpportunitiesIndexRouteImport.update({
+  id: '/opportunities/',
+  path: '/opportunities/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminClientClientIdIndexRoute =
   AdminClientClientIdIndexRouteImport.update({
     id: '/client/$clientId/',
@@ -74,6 +83,24 @@ const AdminLeadCreateIndexRoute = AdminLeadCreateIndexRouteImport.update({
   path: '/lead/create/',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const AdminOpportunityOpportunityIdIndexRoute =
+  AdminOpportunityOpportunityIdIndexRouteImport.update({
+    id: '/opportunity/$opportunityId/',
+    path: '/opportunity/$opportunityId/',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
+const AdminOpportunityCreateIndexRoute =
+  AdminOpportunityCreateIndexRouteImport.update({
+    id: '/opportunity/create/',
+    path: '/opportunity/create/',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
+const AdminOpportunityOpportunityIdEditIndexRoute =
+  AdminOpportunityOpportunityIdEditIndexRouteImport.update({
+    id: '/opportunity/$opportunityId/edit/',
+    path: '/opportunity/$opportunityId/edit/',
+    getParentRoute: () => AdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -81,11 +108,15 @@ export interface FileRoutesByFullPath {
   '/admin/lead-and-client': typeof AdminLeadAndClientRouteRouteWithChildren
   '/login/': typeof LoginIndexRoute
   '/admin/dashboard-and-analytics/': typeof AdminDashboardAndAnalyticsIndexRoute
+  '/admin/opportunities/': typeof AdminOpportunitiesIndexRoute
   '/admin/client/$clientId/': typeof AdminClientClientIdIndexRoute
   '/admin/lead-and-client/clients/': typeof AdminLeadAndClientClientsIndexRoute
   '/admin/lead-and-client/leads/': typeof AdminLeadAndClientLeadsIndexRoute
   '/admin/lead/$leadId/': typeof AdminLeadLeadIdIndexRoute
   '/admin/lead/create/': typeof AdminLeadCreateIndexRoute
+  '/admin/opportunity/$opportunityId/': typeof AdminOpportunityOpportunityIdIndexRoute
+  '/admin/opportunity/create/': typeof AdminOpportunityCreateIndexRoute
+  '/admin/opportunity/$opportunityId/edit/': typeof AdminOpportunityOpportunityIdEditIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,11 +124,15 @@ export interface FileRoutesByTo {
   '/admin/lead-and-client': typeof AdminLeadAndClientRouteRouteWithChildren
   '/login': typeof LoginIndexRoute
   '/admin/dashboard-and-analytics': typeof AdminDashboardAndAnalyticsIndexRoute
+  '/admin/opportunities': typeof AdminOpportunitiesIndexRoute
   '/admin/client/$clientId': typeof AdminClientClientIdIndexRoute
   '/admin/lead-and-client/clients': typeof AdminLeadAndClientClientsIndexRoute
   '/admin/lead-and-client/leads': typeof AdminLeadAndClientLeadsIndexRoute
   '/admin/lead/$leadId': typeof AdminLeadLeadIdIndexRoute
   '/admin/lead/create': typeof AdminLeadCreateIndexRoute
+  '/admin/opportunity/$opportunityId': typeof AdminOpportunityOpportunityIdIndexRoute
+  '/admin/opportunity/create': typeof AdminOpportunityCreateIndexRoute
+  '/admin/opportunity/$opportunityId/edit': typeof AdminOpportunityOpportunityIdEditIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,11 +141,15 @@ export interface FileRoutesById {
   '/admin/lead-and-client': typeof AdminLeadAndClientRouteRouteWithChildren
   '/login/': typeof LoginIndexRoute
   '/admin/dashboard-and-analytics/': typeof AdminDashboardAndAnalyticsIndexRoute
+  '/admin/opportunities/': typeof AdminOpportunitiesIndexRoute
   '/admin/client/$clientId/': typeof AdminClientClientIdIndexRoute
   '/admin/lead-and-client/clients/': typeof AdminLeadAndClientClientsIndexRoute
   '/admin/lead-and-client/leads/': typeof AdminLeadAndClientLeadsIndexRoute
   '/admin/lead/$leadId/': typeof AdminLeadLeadIdIndexRoute
   '/admin/lead/create/': typeof AdminLeadCreateIndexRoute
+  '/admin/opportunity/$opportunityId/': typeof AdminOpportunityOpportunityIdIndexRoute
+  '/admin/opportunity/create/': typeof AdminOpportunityCreateIndexRoute
+  '/admin/opportunity/$opportunityId/edit/': typeof AdminOpportunityOpportunityIdEditIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -120,11 +159,15 @@ export interface FileRouteTypes {
     | '/admin/lead-and-client'
     | '/login/'
     | '/admin/dashboard-and-analytics/'
+    | '/admin/opportunities/'
     | '/admin/client/$clientId/'
     | '/admin/lead-and-client/clients/'
     | '/admin/lead-and-client/leads/'
     | '/admin/lead/$leadId/'
     | '/admin/lead/create/'
+    | '/admin/opportunity/$opportunityId/'
+    | '/admin/opportunity/create/'
+    | '/admin/opportunity/$opportunityId/edit/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -132,11 +175,15 @@ export interface FileRouteTypes {
     | '/admin/lead-and-client'
     | '/login'
     | '/admin/dashboard-and-analytics'
+    | '/admin/opportunities'
     | '/admin/client/$clientId'
     | '/admin/lead-and-client/clients'
     | '/admin/lead-and-client/leads'
     | '/admin/lead/$leadId'
     | '/admin/lead/create'
+    | '/admin/opportunity/$opportunityId'
+    | '/admin/opportunity/create'
+    | '/admin/opportunity/$opportunityId/edit'
   id:
     | '__root__'
     | '/'
@@ -144,11 +191,15 @@ export interface FileRouteTypes {
     | '/admin/lead-and-client'
     | '/login/'
     | '/admin/dashboard-and-analytics/'
+    | '/admin/opportunities/'
     | '/admin/client/$clientId/'
     | '/admin/lead-and-client/clients/'
     | '/admin/lead-and-client/leads/'
     | '/admin/lead/$leadId/'
     | '/admin/lead/create/'
+    | '/admin/opportunity/$opportunityId/'
+    | '/admin/opportunity/create/'
+    | '/admin/opportunity/$opportunityId/edit/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -194,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminDashboardAndAnalyticsIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/opportunities/': {
+      id: '/admin/opportunities/'
+      path: '/opportunities'
+      fullPath: '/admin/opportunities/'
+      preLoaderRoute: typeof AdminOpportunitiesIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
     '/admin/client/$clientId/': {
       id: '/admin/client/$clientId/'
       path: '/client/$clientId'
@@ -229,6 +287,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLeadCreateIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/admin/opportunity/$opportunityId/': {
+      id: '/admin/opportunity/$opportunityId/'
+      path: '/opportunity/$opportunityId'
+      fullPath: '/admin/opportunity/$opportunityId/'
+      preLoaderRoute: typeof AdminOpportunityOpportunityIdIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/opportunity/create/': {
+      id: '/admin/opportunity/create/'
+      path: '/opportunity/create'
+      fullPath: '/admin/opportunity/create/'
+      preLoaderRoute: typeof AdminOpportunityCreateIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/opportunity/$opportunityId/edit/': {
+      id: '/admin/opportunity/$opportunityId/edit/'
+      path: '/opportunity/$opportunityId/edit'
+      fullPath: '/admin/opportunity/$opportunityId/edit/'
+      preLoaderRoute: typeof AdminOpportunityOpportunityIdEditIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
   }
 }
 
@@ -251,17 +330,27 @@ const AdminLeadAndClientRouteRouteWithChildren =
 interface AdminRouteRouteChildren {
   AdminLeadAndClientRouteRoute: typeof AdminLeadAndClientRouteRouteWithChildren
   AdminDashboardAndAnalyticsIndexRoute: typeof AdminDashboardAndAnalyticsIndexRoute
+  AdminOpportunitiesIndexRoute: typeof AdminOpportunitiesIndexRoute
   AdminClientClientIdIndexRoute: typeof AdminClientClientIdIndexRoute
   AdminLeadLeadIdIndexRoute: typeof AdminLeadLeadIdIndexRoute
   AdminLeadCreateIndexRoute: typeof AdminLeadCreateIndexRoute
+  AdminOpportunityOpportunityIdIndexRoute: typeof AdminOpportunityOpportunityIdIndexRoute
+  AdminOpportunityCreateIndexRoute: typeof AdminOpportunityCreateIndexRoute
+  AdminOpportunityOpportunityIdEditIndexRoute: typeof AdminOpportunityOpportunityIdEditIndexRoute
 }
 
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminLeadAndClientRouteRoute: AdminLeadAndClientRouteRouteWithChildren,
   AdminDashboardAndAnalyticsIndexRoute: AdminDashboardAndAnalyticsIndexRoute,
+  AdminOpportunitiesIndexRoute: AdminOpportunitiesIndexRoute,
   AdminClientClientIdIndexRoute: AdminClientClientIdIndexRoute,
   AdminLeadLeadIdIndexRoute: AdminLeadLeadIdIndexRoute,
   AdminLeadCreateIndexRoute: AdminLeadCreateIndexRoute,
+  AdminOpportunityOpportunityIdIndexRoute:
+    AdminOpportunityOpportunityIdIndexRoute,
+  AdminOpportunityCreateIndexRoute: AdminOpportunityCreateIndexRoute,
+  AdminOpportunityOpportunityIdEditIndexRoute:
+    AdminOpportunityOpportunityIdEditIndexRoute,
 }
 
 const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(

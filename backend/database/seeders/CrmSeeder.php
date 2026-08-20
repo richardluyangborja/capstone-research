@@ -4,14 +4,15 @@ namespace Database\Seeders;
 
 use App\Enums\ClientStatus;
 use App\Enums\LeadStatus;
-use App\Enums\UserRole;
+use App\Enums\OpportunityStage;
 use App\Models\Client;
 use App\Models\Company;
 use App\Models\Contact;
 use App\Models\Lead;
+use App\Models\Opportunity;
+use App\Models\StageHistory;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class CrmSeeder extends Seeder
 {
@@ -243,82 +244,271 @@ class CrmSeeder extends Seeder
         |--------------------------------------------------------------------------
         */
 
-        \App\Models\Opportunity::create([
+        $abcManufacturingOpp = Opportunity::create([
             'company_id' => $abcManufacturing->id,
             'lead_id' => $abcManufacturing->leads()->first()->id ?? null,
             'client_id' => $abcManufacturing->client->id ?? null,
             'assigned_to_id' => $maria->id,
             'title' => 'Production Line Staffing',
             'description' => 'Supply 50 production workers for 12 months.',
-            'stage' => \App\Enums\OpportunityStage::PROPOSAL,
+            'stage' => OpportunityStage::PROPOSAL,
             'manpower_requirement' => 50,
             'estimated_contract_value' => 1800000.00,
             'expected_close_date' => now()->addMonths(2)->toDateString(),
         ]);
 
-        \App\Models\Opportunity::create([
+        StageHistory::create([
+            'opportunity_id' => $abcManufacturingOpp->id,
+            'user_id' => $maria->id,
+            'from_stage' => null,
+            'to_stage' => OpportunityStage::INITIAL_CONTACT->value,
+            'reason' => 'Initial outreach via referral from existing client.',
+            'created_at' => now()->subDays(30),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $abcManufacturingOpp->id,
+            'user_id' => $maria->id,
+            'from_stage' => OpportunityStage::INITIAL_CONTACT->value,
+            'to_stage' => OpportunityStage::DISCUSSION->value,
+            'reason' => 'Initial meeting completed with operations manager.',
+            'created_at' => now()->subDays(20),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $abcManufacturingOpp->id,
+            'user_id' => $maria->id,
+            'from_stage' => OpportunityStage::DISCUSSION->value,
+            'to_stage' => OpportunityStage::PROPOSAL->value,
+            'reason' => 'Client requested a formal proposal for 50 production workers.',
+            'created_at' => now()->subDays(10),
+        ]);
+
+        $primeLogisticsOpp = Opportunity::create([
             'company_id' => $primeLogistics->id,
             'lead_id' => $primeLogistics->leads()->first()->id ?? null,
             'client_id' => $primeLogistics->client->id ?? null,
             'assigned_to_id' => $juan->id,
             'title' => 'Warehouse Associate Deployment',
             'description' => 'Provide 30 warehouse associates for peak season.',
-            'stage' => \App\Enums\OpportunityStage::NEGOTIATION,
+            'stage' => OpportunityStage::NEGOTIATION,
             'manpower_requirement' => 30,
             'estimated_contract_value' => 960000.00,
             'expected_close_date' => now()->addMonth()->toDateString(),
         ]);
 
-        \App\Models\Opportunity::create([
+        StageHistory::create([
+            'opportunity_id' => $primeLogisticsOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => null,
+            'to_stage' => OpportunityStage::INITIAL_CONTACT->value,
+            'reason' => 'Inquiry received from warehouse operations manager.',
+            'created_at' => now()->subDays(35),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $primeLogisticsOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::INITIAL_CONTACT->value,
+            'to_stage' => OpportunityStage::DISCUSSION->value,
+            'reason' => 'Discussed staffing requirements for peak season.',
+            'created_at' => now()->subDays(25),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $primeLogisticsOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::DISCUSSION->value,
+            'to_stage' => OpportunityStage::PROPOSAL->value,
+            'reason' => 'Proposal drafted for 30 warehouse associates.',
+            'created_at' => now()->subDays(15),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $primeLogisticsOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::PROPOSAL->value,
+            'to_stage' => OpportunityStage::NEGOTIATION->value,
+            'reason' => 'Client is reviewing terms and conditions.',
+            'created_at' => now()->subDays(5),
+        ]);
+
+        $metroRetailWonOpp = Opportunity::create([
             'company_id' => $metroRetail->id,
             'lead_id' => null,
             'client_id' => $metroRetail->client->id ?? null,
             'assigned_to_id' => $juan->id,
             'title' => 'Seasonal Store Staffing',
             'description' => 'Deploy 20 sales associates for holiday season.',
-            'stage' => \App\Enums\OpportunityStage::WON,
+            'stage' => OpportunityStage::WON,
             'manpower_requirement' => 20,
             'estimated_contract_value' => 720000.00,
             'expected_close_date' => now()->subWeek()->toDateString(),
         ]);
 
-        \App\Models\Opportunity::create([
+        StageHistory::create([
+            'opportunity_id' => $metroRetailWonOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => null,
+            'to_stage' => OpportunityStage::INITIAL_CONTACT->value,
+            'reason' => 'Client expressed interest in holiday staffing.',
+            'created_at' => now()->subMonths(3),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $metroRetailWonOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::INITIAL_CONTACT->value,
+            'to_stage' => OpportunityStage::DISCUSSION->value,
+            'reason' => 'Initial requirements gathering session completed.',
+            'created_at' => now()->subMonths(2)->addDays(20),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $metroRetailWonOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::DISCUSSION->value,
+            'to_stage' => OpportunityStage::PROPOSAL->value,
+            'reason' => 'Formal proposal submitted for 20 sales associates.',
+            'created_at' => now()->subMonths(2),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $metroRetailWonOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::PROPOSAL->value,
+            'to_stage' => OpportunityStage::NEGOTIATION->value,
+            'reason' => 'Client requested adjustments to proposal terms.',
+            'created_at' => now()->subMonths(1)->addDays(15),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $metroRetailWonOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::NEGOTIATION->value,
+            'to_stage' => OpportunityStage::CONTRACT_PROCESSING->value,
+            'reason' => 'Terms agreed upon. Moving to contract drafting.',
+            'created_at' => now()->subMonths(1),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $metroRetailWonOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::CONTRACT_PROCESSING->value,
+            'to_stage' => OpportunityStage::WON->value,
+            'reason' => 'Contract signed. Opportunity marked as won.',
+            'created_at' => now()->subWeek(),
+        ]);
+
+        $goldenFoodsOpp = Opportunity::create([
             'company_id' => $goldenFoods->id,
             'lead_id' => $goldenFoods->leads()->first()->id ?? null,
             'client_id' => $goldenFoods->client->id ?? null,
             'assigned_to_id' => $maria->id,
             'title' => 'Packaging Line Support',
             'description' => 'Supply 25 packaging line helpers for 6 months.',
-            'stage' => \App\Enums\OpportunityStage::DISCUSSION,
+            'stage' => OpportunityStage::DISCUSSION,
             'manpower_requirement' => 25,
             'estimated_contract_value' => 540000.00,
             'expected_close_date' => now()->addMonths(3)->toDateString(),
         ]);
 
-        \App\Models\Opportunity::create([
+        StageHistory::create([
+            'opportunity_id' => $goldenFoodsOpp->id,
+            'user_id' => $maria->id,
+            'from_stage' => null,
+            'to_stage' => OpportunityStage::INITIAL_CONTACT->value,
+            'reason' => 'Initial cold outreach via LinkedIn contact.',
+            'created_at' => now()->subDays(15),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $goldenFoodsOpp->id,
+            'user_id' => $maria->id,
+            'from_stage' => OpportunityStage::INITIAL_CONTACT->value,
+            'to_stage' => OpportunityStage::DISCUSSION->value,
+            'reason' => 'First meeting held with HR supervisor.',
+            'created_at' => now()->subDays(5),
+        ]);
+
+        $pacificPropertiesOpp = Opportunity::create([
             'company_id' => $pacificProperties->id,
             'lead_id' => $pacificProperties->leads()->first()->id ?? null,
             'client_id' => null,
             'assigned_to_id' => $juan->id,
             'title' => 'Construction Site Manpower',
             'description' => 'Provide general helpers for ongoing construction projects.',
-            'stage' => \App\Enums\OpportunityStage::INITIAL_CONTACT,
+            'stage' => OpportunityStage::INITIAL_CONTACT,
             'manpower_requirement' => 40,
             'estimated_contract_value' => 1200000.00,
             'expected_close_date' => now()->addMonths(4)->toDateString(),
         ]);
 
-        \App\Models\Opportunity::create([
+        StageHistory::create([
+            'opportunity_id' => $pacificPropertiesOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => null,
+            'to_stage' => OpportunityStage::INITIAL_CONTACT->value,
+            'reason' => 'Referral inquiry for construction site staffing.',
+            'created_at' => now()->subDays(10),
+        ]);
+
+        $metroInventoryOpp = Opportunity::create([
             'company_id' => $metroRetail->id,
             'lead_id' => null,
             'client_id' => $metroRetail->client->id ?? null,
             'assigned_to_id' => $juan->id,
             'title' => 'Inventory Staffing',
             'description' => 'Supply 15 inventory clerks for warehouse operations.',
-            'stage' => \App\Enums\OpportunityStage::CONTRACT_PROCESSING,
+            'stage' => OpportunityStage::CONTRACT_PROCESSING,
             'manpower_requirement' => 15,
             'estimated_contract_value' => 450000.00,
             'expected_close_date' => now()->addWeeks(2)->toDateString(),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $metroInventoryOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => null,
+            'to_stage' => OpportunityStage::INITIAL_CONTACT->value,
+            'reason' => 'Request for inventory staffing during peak season.',
+            'created_at' => now()->subMonths(2),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $metroInventoryOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::INITIAL_CONTACT->value,
+            'to_stage' => OpportunityStage::DISCUSSION->value,
+            'reason' => 'Discussed staffing needs for inventory operations.',
+            'created_at' => now()->subMonths(1)->addDays(20),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $metroInventoryOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::DISCUSSION->value,
+            'to_stage' => OpportunityStage::PROPOSAL->value,
+            'reason' => 'Proposal submitted for 15 inventory clerks.',
+            'created_at' => now()->subMonth(),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $metroInventoryOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::PROPOSAL->value,
+            'to_stage' => OpportunityStage::NEGOTIATION->value,
+            'reason' => 'Negotiation on contract terms and rates.',
+            'created_at' => now()->subWeeks(2),
+        ]);
+
+        StageHistory::create([
+            'opportunity_id' => $metroInventoryOpp->id,
+            'user_id' => $juan->id,
+            'from_stage' => OpportunityStage::NEGOTIATION->value,
+            'to_stage' => OpportunityStage::CONTRACT_PROCESSING->value,
+            'reason' => 'Terms finalized. Legal review in progress.',
+            'created_at' => now()->subWeek(),
         ]);
     }
 }

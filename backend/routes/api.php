@@ -35,5 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('opportunities', OpportunityController::class)
         ->except(['destroy']);
 
+    Route::patch('opportunities/{opportunity}/stage', [OpportunityController::class, 'updateStage']);
+
     Route::post('opportunities/{opportunity}/win', [WinOpportunityController::class, 'win']);
 });

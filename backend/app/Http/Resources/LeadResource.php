@@ -14,9 +14,7 @@ class LeadResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $primaryContact = $this->company
-            ->contacts
-            ->firstWhere('is_primary', true);
+        $primaryContact = $this->company->primaryContact;
 
         return [
             'id' => $this->id,
@@ -31,7 +29,7 @@ class LeadResource extends JsonResource
                 'industry' => $this->company->industry,
             ],
 
-            'primary_contact' => $this->company->primaryContact
+            'primary_contact' => $primaryContact
                 ? [
                     'id' => $primaryContact->id,
                     'name' => "{$primaryContact->first_name} {$primaryContact->last_name}",

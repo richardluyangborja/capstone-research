@@ -25,6 +25,7 @@ class ClientController extends Controller
     {
         $client->load([
             'company.contacts',
+            'company.opportunities.assignedTo',
             'assignedTo',
         ]);
 

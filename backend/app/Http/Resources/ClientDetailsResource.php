@@ -43,6 +43,10 @@ class ClientDetailsResource extends JsonResource
                 ]
             ),
 
+            'opportunities' => OpportunitySummaryResource::collection(
+                $this->company->opportunities
+            ),
+
             'sales_representative' => [
                 'id' => $this->assignedTo->id,
                 'name' => $this->assignedTo->name,

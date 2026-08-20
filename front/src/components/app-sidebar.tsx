@@ -57,6 +57,12 @@ const sidebarConfig = [
         icon: Network,
       },
       {
+        path: "/admin/opportunities",
+        label: "Opportunity Pipeline Visualization",
+        icon: ChartSpline,
+        tooltip: true,
+      },
+      {
         path: "/admin/communications",
         label: "Communications History",
         icon: MessageCircleMore,
@@ -70,12 +76,6 @@ const sidebarConfig = [
         path: "/admin/reminders",
         label: "Follow-up Reminders",
         icon: Bell,
-      },
-      {
-        path: "/admin/opportunities",
-        label: "Opportunity Pipeline Visualization",
-        icon: ChartSpline,
-        tooltip: true,
       },
     ],
   },

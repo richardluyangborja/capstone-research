@@ -8,11 +8,13 @@ use App\Enums\OpportunityStage;
 use App\Models\Client;
 use App\Models\Lead;
 use App\Models\Opportunity;
+use App\Models\StageHistory;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class WinOpportunity
 {
-    public function handle(Opportunity $opportunity): array
+    public function handle(Opportunity $opportunity, ?string $reason = null): array
     {
         if ($opportunity->stage === OpportunityStage::WON) {
             abort(409, 'Opportunity is already marked as won.');
@@ -28,9 +30,19 @@ class WinOpportunity
 
         $opportunity->load('company.client');
 
-        $result = DB::transaction(function () use ($opportunity) {
+        $result = DB::transaction(function () use ($opportunity, $reason) {
+            $fromStage = $opportunity->stage->value;
+
             $opportunity->update([
                 'stage' => OpportunityStage::WON,
+            ]);
+
+            StageHistory::create([
+                'opportunity_id' => $opportunity->id,
+                'user_id' => Auth::id(),
+                'from_stage' => $fromStage,
+                'to_stage' => OpportunityStage::WON->value,
+                'reason' => $reason,
             ]);
 
             $client = null;

@@ -1,16 +1,11 @@
-import { useForm, } from "@tanstack/react-form"
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
+import { useForm } from "@tanstack/react-form"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldGroup,
   FieldLabel,
@@ -26,12 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  useCreateOpportunity,
-  useSalesRepresentatives,
-  useCompanies,
-  useLeads,
-} from "./-hooks"
+import { useCreateOpportunity, useCompanies, useLeads } from "./-hooks"
 import {
   createOpportunitySchema,
   type CreateOpportunityFormValues,
@@ -47,7 +37,6 @@ import {
 import { useNavigate } from "@tanstack/react-router"
 
 export function CreateOpportunityForm() {
-  const salesRepsQuery = useSalesRepresentatives()
   const companiesQuery = useCompanies()
   const leadsQuery = useLeads()
   const createOpportunityMutation = useCreateOpportunity()
@@ -58,9 +47,9 @@ export function CreateOpportunityForm() {
     defaultValues: {
       company_id: 0,
       lead_id: null,
-      assigned_to_id: 0,
       title: "",
       description: "",
+      manpower_requirement: null,
       estimated_contract_value: null,
       expected_close_date: null,
     } satisfies CreateOpportunityFormValues,
@@ -96,17 +85,17 @@ export function CreateOpportunityForm() {
             <h1 className="font-heading text-lg">Create a new opportunity</h1>
           </CardTitle>
           <CardAction>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  form.reset()
-                  setSelectedCompanyId(0)
-                }}
-                disabled={isSubmitting}
-              >
-                Reset Form
-              </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                form.reset()
+                setSelectedCompanyId(0)
+              }}
+              disabled={isSubmitting}
+            >
+              Reset Form
+            </Button>
           </CardAction>
         </CardHeader>
         <CardContent className="space-y-8">
@@ -167,8 +156,7 @@ export function CreateOpportunityForm() {
                             field.handleChange(Number(value))
                           }}
                           disabled={
-                            companiesQuery.isLoading ||
-                            companiesQuery.isError
+                            companiesQuery.isLoading || companiesQuery.isError
                           }
                         >
                           <SelectTrigger
@@ -198,9 +186,7 @@ export function CreateOpportunityForm() {
                         </Select>
 
                         {companiesQuery.isError && (
-                          <FieldError>
-                            Unable to load companies.
-                          </FieldError>
+                          <FieldError>Unable to load companies.</FieldError>
                         )}
 
                         {isInvalid && (
@@ -225,18 +211,12 @@ export function CreateOpportunityForm() {
 
                         <Select
                           value={
-                            field.state.value
-                              ? String(field.state.value)
-                              : ""
+                            field.state.value ? String(field.state.value) : ""
                           }
                           onValueChange={(value) =>
-                            field.handleChange(
-                              value ? Number(value) : null
-                            )
+                            field.handleChange(value ? Number(value) : null)
                           }
-                          disabled={
-                            leadsQuery.isLoading || leadsQuery.isError
-                          }
+                          disabled={leadsQuery.isLoading || leadsQuery.isError}
                         >
                           <SelectTrigger
                             id={field.name}
@@ -252,14 +232,9 @@ export function CreateOpportunityForm() {
                           </SelectTrigger>
 
                           <SelectContent>
-                            <SelectItem value="">
-                              None
-                            </SelectItem>
+                            <SelectItem value="">None</SelectItem>
                             {availableLeads?.map((lead) => (
-                              <SelectItem
-                                key={lead.id}
-                                value={String(lead.id)}
-                              >
+                              <SelectItem key={lead.id} value={String(lead.id)}>
                                 {lead.company.name} — #{lead.id}
                               </SelectItem>
                             ))}
@@ -267,9 +242,7 @@ export function CreateOpportunityForm() {
                         </Select>
 
                         {leadsQuery.isError && (
-                          <FieldError>
-                            Unable to load leads.
-                          </FieldError>
+                          <FieldError>Unable to load leads.</FieldError>
                         )}
 
                         {isInvalid && (
@@ -281,77 +254,15 @@ export function CreateOpportunityForm() {
                 />
               </div>
               <Alert>
-                <AlertTitle>Creating an opportunity for an existing client?</AlertTitle>
+                <AlertTitle>
+                  Creating an opportunity for an existing client?
+                </AlertTitle>
                 <AlertDescription>
-                  If the company already has a client record, leave the Related Lead field empty.
-                  New opportunities for existing clients should not be linked to a lead.
+                  If the company already has a client record, leave the Related
+                  Lead field empty. New opportunities for existing clients
+                  should not be linked to a lead.
                 </AlertDescription>
               </Alert>
-
-              <form.Field
-                name="assigned_to_id"
-                children={(field) => {
-                  const isInvalid =
-                    field.state.meta.isTouched && !field.state.meta.isValid
-
-                  return (
-                    <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>
-                        Sales Representative
-                      </FieldLabel>
-
-                      <Select
-                        value={
-                          field.state.value > 0
-                            ? String(field.state.value)
-                            : ""
-                        }
-                        onValueChange={(value) =>
-                          field.handleChange(Number(value))
-                        }
-                        disabled={
-                          salesRepsQuery.isLoading ||
-                          salesRepsQuery.isError
-                        }
-                      >
-                        <SelectTrigger
-                          id={field.name}
-                          aria-invalid={isInvalid}
-                        >
-                          <SelectValue
-                            placeholder={
-                              salesRepsQuery.isLoading
-                                ? "Loading sales representatives..."
-                                : "Select sales representative"
-                            }
-                          />
-                        </SelectTrigger>
-
-                        <SelectContent>
-                          {salesRepsQuery.data?.map((salesRep) => (
-                            <SelectItem
-                              key={salesRep.id}
-                              value={String(salesRep.id)}
-                            >
-                              {salesRep.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-
-                      {salesRepsQuery.isError && (
-                        <FieldError>
-                          Unable to load sales representatives.
-                        </FieldError>
-                      )}
-
-                      {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} />
-                      )}
-                    </Field>
-                  )
-                }}
-              />
 
               <form.Field
                 name="description"
@@ -361,9 +272,7 @@ export function CreateOpportunityForm() {
 
                   return (
                     <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name}>
-                        Description
-                      </FieldLabel>
+                      <FieldLabel htmlFor={field.name}>Description</FieldLabel>
 
                       <Textarea
                         autoComplete="off"
@@ -384,7 +293,7 @@ export function CreateOpportunityForm() {
                 }}
               />
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-3">
                 <form.Field
                   name="estimated_contract_value"
                   children={(field) => {
@@ -406,9 +315,7 @@ export function CreateOpportunityForm() {
                           onBlur={field.handleBlur}
                           onChange={(e) =>
                             field.handleChange(
-                              e.target.value
-                                ? Number(e.target.value)
-                                : null
+                              e.target.value ? Number(e.target.value) : null
                             )
                           }
                           aria-invalid={isInvalid}
@@ -443,11 +350,45 @@ export function CreateOpportunityForm() {
                           value={field.state.value ?? ""}
                           onBlur={field.handleBlur}
                           onChange={(e) =>
+                            field.handleChange(e.target.value || null)
+                          }
+                          aria-invalid={isInvalid}
+                        />
+
+                        {isInvalid && (
+                          <FieldError errors={field.state.meta.errors} />
+                        )}
+                      </Field>
+                    )
+                  }}
+                />
+
+                <form.Field
+                  name="manpower_requirement"
+                  children={(field) => {
+                    const isInvalid =
+                      field.state.meta.isTouched && !field.state.meta.isValid
+
+                    return (
+                      <Field data-invalid={isInvalid}>
+                        <FieldLabel htmlFor={field.name}>
+                          Manpower Requirement
+                        </FieldLabel>
+
+                        <Input
+                          autoComplete="off"
+                          id={field.name}
+                          name={field.name}
+                          type="number"
+                          value={field.state.value ?? ""}
+                          onBlur={field.handleBlur}
+                          onChange={(e) =>
                             field.handleChange(
-                              e.target.value || null
+                              e.target.value ? Number(e.target.value) : null
                             )
                           }
                           aria-invalid={isInvalid}
+                          placeholder="50"
                         />
 
                         {isInvalid && (
@@ -463,9 +404,7 @@ export function CreateOpportunityForm() {
         </CardContent>
         <CardFooter>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && (
-              <Loader2 className="mr-2 size-4 animate-spin" />
-            )}
+            {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
             {isSubmitting ? "Creating..." : "Create Opportunity"}
           </Button>
         </CardFooter>

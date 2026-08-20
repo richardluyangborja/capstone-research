@@ -37,7 +37,7 @@ class StoreOpportunityRequest extends FormRequest
             ],
 
             'assigned_to_id' => [
-                'required',
+                'nullable',
                 'integer',
                 'exists:users,id',
             ],
@@ -52,6 +52,12 @@ class StoreOpportunityRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:5000',
+            ],
+
+            'manpower_requirement' => [
+                'nullable',
+                'integer',
+                'min:0',
             ],
 
             'estimated_contract_value' => [

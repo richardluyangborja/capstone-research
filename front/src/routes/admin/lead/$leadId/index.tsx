@@ -24,6 +24,9 @@ import {
 } from "lucide-react"
 import useLeadDetailsQuery from "./-useLeadDetailsQuery"
 import { Spinner } from "@/components/ui/spinner"
+import OpportunitiesSummary, {
+  type OpportunitySummary,
+} from "@/components/opportunities-summary"
 import {
   Alert,
   AlertAction,
@@ -61,6 +64,7 @@ export type LeadInfoPage = {
     email: string
     phone: string
   }[]
+  opportunities?: OpportunitySummary[]
 }
 
 export const Route = createFileRoute("/admin/lead/$leadId/")({
@@ -115,6 +119,10 @@ function RouteComponent() {
               <LeadInfoCard lead={lead} />
               <Separator />
               <ContactInfoSection lead={lead} />
+              <Separator />
+              {lead.opportunities && lead.opportunities.length > 0 && (
+                <OpportunitiesSummary opportunities={lead.opportunities} />
+              )}
             </div>{" "}
           </>
         )}
@@ -218,7 +226,7 @@ function LeadInfoCard({ lead }: { lead: LeadInfoPage }) {
             <span className="block text-sm text-muted-foreground">
               Recent Activity
             </span>
-             <span>{lead.recent_activity?.toDateString()}</span>
+            <span>{lead.recent_activity?.toDateString()}</span>
           </div>
         </CardContent>
       </Card>

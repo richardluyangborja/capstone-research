@@ -46,4 +46,9 @@ class Opportunity extends Model
     {
         return $this->belongsTo(User::class, 'assigned_to_id');
     }
+
+    public function stageHistories()
+    {
+        return $this->hasMany(StageHistory::class)->orderBy('created_at', 'desc');
+    }
 }

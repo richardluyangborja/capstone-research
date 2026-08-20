@@ -35,6 +35,7 @@ class LeadController extends Controller
 
         $lead->load([
             'company.contacts',
+            'opportunities.assignedTo',
             'assignedTo',
         ]);
 
@@ -45,6 +46,7 @@ class LeadController extends Controller
     {
         $lead->load([
             'company.contacts',
+            'opportunities.assignedTo',
             'assignedTo',
         ]);
 

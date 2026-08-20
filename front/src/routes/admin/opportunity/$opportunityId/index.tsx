@@ -1,8 +1,4 @@
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,37 +6,31 @@ import {
   CardAction,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { createFileRoute, useRouter } from "@tanstack/react-router"
-import {
-  ChevronLeft,
-  CheckCircle2,
-  Info,
-  Mail,
-  MoveUpRight,
-  Pencil,
-  Phone,
-  Plus,
-  Trash,
-} from "lucide-react"
+import { ChevronLeft, CheckCircle2, Info, Pencil } from "lucide-react"
 import useOpportunityDetailsQuery from "./-useOpportunityDetailsQuery"
 import { useWinOpportunity } from "./-useWinOpportunity"
+import { useUpdateOpportunityStage } from "./-useUpdateOpportunityStage"
 import { Spinner } from "@/components/ui/spinner"
-import {
-  Alert,
-  AlertAction,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { StageTransitionModal } from "@/components/stage-transition-modal"
+import type { StageHistoryEntry } from "@/components/stage-transition-modal"
+import { useState } from "react"
 
 export type OpportunityInfoPage = {
   id: number
   title: string
-  stage: "initial_contact" | "discussion" | "proposal" | "negotiation" | "contract_processing" | "won" | "lost"
+  stage:
+    | "initial_contact"
+    | "discussion"
+    | "proposal"
+    | "negotiation"
+    | "contract_processing"
+    | "won"
+    | "lost"
   description: string
   company: {
     name: string
@@ -61,6 +51,7 @@ export type OpportunityInfoPage = {
   expected_close_date: string | null
   lost_reason: string | null
   manpower_requirement: number | null
+  stage_histories: StageHistoryEntry[]
   created_at: string
   contacts: {
     id: number
@@ -75,6 +66,39 @@ export type OpportunityInfoPage = {
 export const Route = createFileRoute("/admin/opportunity/$opportunityId/")({
   component: RouteComponent,
 })
+
+const stageLabels: Record<string, string> = {
+  initial_contact: "Initial Contact",
+  discussion: "Discussion",
+  proposal: "Proposal",
+  negotiation: "Negotiation",
+  contract_processing: "Contract Processing",
+  won: "Won",
+  lost: "Lost",
+}
+
+const stageTransitions: Record<string, { label: string; value: string }[]> = {
+  initial_contact: [
+    { label: "Move to Discussion", value: "discussion" },
+    { label: "Mark as Lost", value: "lost" },
+  ],
+  discussion: [
+    { label: "Move to Proposal", value: "proposal" },
+    { label: "Mark as Lost", value: "lost" },
+  ],
+  proposal: [
+    { label: "Move to Negotiation", value: "negotiation" },
+    { label: "Mark as Lost", value: "lost" },
+  ],
+  negotiation: [
+    { label: "Move to Contract Processing", value: "contract_processing" },
+    { label: "Mark as Lost", value: "lost" },
+  ],
+  contract_processing: [
+    { label: "Mark as Won", value: "won" },
+    { label: "Mark as Lost", value: "lost" },
+  ],
+}
 
 function RouteComponent() {
   const router = useRouter()
@@ -96,16 +120,11 @@ function RouteComponent() {
             <Spinner />
           </div>
         ) : (
-            <div className="mt-6 flex flex-col gap-6">
-              <OpportunityInfoCard opportunity={opportunity} opportunityId={Number(opportunityId)} />
-              {opportunity.lead && (
-              <>
-                <Separator />
-                <LeadInfoCard opportunity={opportunity} />
-              </>
-            )}
-            <Separator />
-            <ContactInfoSection opportunity={opportunity} />
+          <div className="mt-6 flex flex-col gap-6">
+            <OpportunityInfoCard
+              opportunity={opportunity}
+              opportunityId={Number(opportunityId)}
+            />
           </div>
         )}
       </main>
@@ -120,8 +139,54 @@ function OpportunityInfoCard({
   opportunity: OpportunityInfoPage
   opportunityId: number
 }) {
-  const canWin = opportunity.stage === "contract_processing"
   const winMutation = useWinOpportunity(opportunityId)
+  const stageMutation = useUpdateOpportunityStage(opportunityId)
+  const transitions = stageTransitions[opportunity.stage] ?? []
+
+  const [modalOpen, setModalOpen] = useState(false)
+  const [activeTransition, setActiveTransition] = useState<{
+    label: string
+    value: string
+  } | null>(null)
+
+  const handleTransitionClick = (transition: {
+    label: string
+    value: string
+  }) => {
+    setActiveTransition(transition)
+    setModalOpen(true)
+  }
+
+  const handleModalSubmit = async (reason: string) => {
+    if (!activeTransition) return
+
+    if (activeTransition.value === "won") {
+      await winMutation.mutateAsync({ reason })
+    } else {
+      await stageMutation.mutateAsync({
+        stage: activeTransition.value,
+        reason,
+      })
+    }
+  }
+
+  const isPending = winMutation.isPending || stageMutation.isPending
+
+  const stageLabel = (value: string) => stageLabels[value] ?? value
+
+  const modalTitle =
+    activeTransition?.value === "won"
+      ? "Mark as Won"
+      : activeTransition?.value === "lost"
+        ? "Mark as Lost"
+        : "Transition Stage"
+
+  const modalDescription =
+    activeTransition?.value === "won"
+      ? "Provide details about why this opportunity is being marked as won."
+      : activeTransition?.value === "lost"
+        ? "Provide details about why this opportunity was lost."
+        : `Provide a brief note about moving this opportunity to ${stageLabel(activeTransition?.value ?? "")}.`
 
   return (
     <section>
@@ -129,24 +194,26 @@ function OpportunityInfoCard({
         <CardHeader>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
-              <CardTitle>{opportunity.company.name}</CardTitle>
-              <Badge variant="secondary">{opportunity.stage}</Badge>
+              <CardTitle>{opportunity.title}</CardTitle>
+              <Badge variant="secondary">
+                {stageLabels[opportunity.stage] ?? opportunity.stage}
+              </Badge>
             </div>
-            <CardDescription>
-              {opportunity.title}
-            </CardDescription>
+            <CardDescription>{opportunity.company.name}</CardDescription>
           </div>
-          <CardAction className="flex gap-2">
-            {canWin && (
+          <CardAction className="flex flex-wrap gap-2">
+            {transitions.map((t) => (
               <Button
-                variant="default"
-                size="icon"
-                onClick={() => winMutation.mutateAsync()}
-                disabled={winMutation.isPending}
+                key={t.value}
+                size="sm"
+                variant={t.value === "lost" ? "destructive" : "default"}
+                onClick={() => handleTransitionClick(t)}
+                disabled={isPending}
               >
-                <CheckCircle2 />
+                {t.value === "won" && <CheckCircle2 className="mr-2 size-4" />}
+                {t.label}
               </Button>
-            )}
+            ))}
             <Button variant="outline" size="icon">
               <Pencil />
             </Button>
@@ -179,9 +246,7 @@ function OpportunityInfoCard({
             </span>
             <span>
               {opportunity.expected_close_date
-                ? new Date(
-                    opportunity.expected_close_date
-                  ).toLocaleDateString()
+                ? new Date(opportunity.expected_close_date).toLocaleDateString()
                 : "—"}
             </span>
           </div>
@@ -206,9 +271,7 @@ function OpportunityInfoCard({
               <Alert variant="destructive">
                 <Info />
                 <AlertTitle>Lost Reason</AlertTitle>
-                <AlertDescription>
-                  {opportunity.lost_reason}
-                </AlertDescription>
+                <AlertDescription>{opportunity.lost_reason}</AlertDescription>
               </Alert>
             </div>
           )}
@@ -231,91 +294,53 @@ function OpportunityInfoCard({
           </div>
         </CardContent>
       </Card>
+
+      {opportunity.stage_histories &&
+        opportunity.stage_histories.length > 0 && (
+          <StageHistorySection histories={opportunity.stage_histories} />
+        )}
+
+      <StageTransitionModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        title={modalTitle}
+        description={modalDescription}
+        isPending={isPending}
+        onSubmit={handleModalSubmit}
+      />
     </section>
   )
 }
 
-function LeadInfoCard({ opportunity }: { opportunity: OpportunityInfoPage }) {
-  if (!opportunity.lead) return null
-
-  return (
-    <section>
-      <Card>
-        <CardHeader>
-          <CardTitle>Origin Lead</CardTitle>
-          <CardDescription>
-            {opportunity.lead.company.name}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4">
-          <div>
-            <span className="block text-sm text-muted-foreground">
-              Lead Status
-            </span>
-            <Badge variant="secondary">{opportunity.lead.status}</Badge>
-          </div>
-          <div>
-            <Button variant="link" className="p-0" asChild>
-              <a
-                href={`/admin/lead/${opportunity.lead.id}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                View Lead <MoveUpRight />
-              </a>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </section>
-  )
-}
-
-function ContactInfoSection({
-  opportunity,
+function StageHistorySection({
+  histories,
 }: {
-  opportunity: OpportunityInfoPage
+  histories: StageHistoryEntry[]
 }) {
   return (
     <section>
-      <header>
-        <h2 className="font-heading text-lg">Contacts</h2>
-        <Button variant="outline" className="my-2 w-full">
-          <Plus />
-          <span>Add a contact</span>
-        </Button>
-      </header>
-      <div className="grid grid-cols-2 gap-4">
-        {opportunity.contacts.map((contact, i) => (
-          <Card key={i}>
-            <CardHeader>
-              <CardTitle>{contact.name}</CardTitle>
-              <CardDescription>{contact.title}</CardDescription>
-              <CardAction>
-                <Button variant="outline" size="icon">
-                  <Pencil />
-                </Button>
-              </CardAction>
-            </CardHeader>
-            <CardContent className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <Mail size={18} className="text-muted-foreground" />
-                <span>{contact.email}</span>
+      <h3 className="mt-6 mb-3 font-heading text-lg">Stage History</h3>
+      <div className="flex flex-col gap-3">
+        {histories.map((h) => (
+          <div key={h.id} className="border-l-2 border-muted pl-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-sm font-medium">
+                  {h.from_stage ? stageLabels[h.from_stage] : "New"} →{" "}
+                  {stageLabels[h.to_stage]}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {new Date(h.created_at).toLocaleString()}
+                </span>
               </div>
-              <div className="flex items-center gap-1">
-                <Phone size={18} className="text-muted-foreground" />
-                <span>{contact.phone}</span>
-              </div>
-            </CardContent>
-
-            <Separator />
-            <CardFooter>
-              <Button variant="destructive" size="sm">
-                <Trash />
-                <span>Delete this contact</span>
-              </Button>
-            </CardFooter>
-          </Card>
+              {h.user && (
+                <span className="text-xs text-muted-foreground">
+                  {h.user.name}
+                </span>
+              )}
+            </div>
+            {h.reason && <p className="mt-1 text-sm">{h.reason}</p>}
+          </div>
         ))}
       </div>
     </section>

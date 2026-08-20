@@ -5,9 +5,10 @@ export function useWinOpportunity(opportunityId: number) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ reason }: { reason?: string } = {}) => {
       const response = await api.post(
-        `/api/opportunities/${opportunityId}/win`
+        `/api/opportunities/${opportunityId}/win`,
+        { reason }
       )
       return response.data.data
     },

@@ -31,7 +31,7 @@ class LeadDetailsResource extends JsonResource
             ],
 
             'contacts' => $this->company->contacts->map(
-                fn($contact) => [
+                fn ($contact) => [
                     'id' => $contact->id,
                     'name' => "{$contact->first_name} {$contact->last_name}",
                     'title' => $contact->title,
@@ -40,6 +40,8 @@ class LeadDetailsResource extends JsonResource
                     'is_primary' => $contact->is_primary,
                 ]
             ),
+
+            'opportunities' => OpportunitySummaryResource::collection($this->opportunities),
 
             'sales_representative' => [
                 'id' => $this->assignedTo->id,

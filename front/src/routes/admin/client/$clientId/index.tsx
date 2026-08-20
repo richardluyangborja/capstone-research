@@ -24,6 +24,9 @@ import {
 } from "lucide-react"
 import useClientDetailsQuery from "./-useClientDetailsQuery"
 import { Spinner } from "@/components/ui/spinner"
+import OpportunitiesSummary, {
+  type OpportunitySummary,
+} from "@/components/opportunities-summary"
 import {
   Alert,
   AlertAction,
@@ -56,6 +59,7 @@ export type ClientInfoPage = {
     email: string
     phone: string
   }[]
+  opportunities?: OpportunitySummary[]
   sales_representative: {
     name: string
     profileHref?: string
@@ -95,7 +99,9 @@ function RouteComponent() {
                   <AvatarFallback>{client.company.logoFallback}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col gap-1">
-                  <h1 className="font-heading text-lg">{client.company.name}</h1>
+                  <h1 className="font-heading text-lg">
+                    {client.company.name}
+                  </h1>
                   <div className="flex items-center gap-1">
                     <Badge variant="secondary">{client.status}</Badge>
                     {client.company.website && (
@@ -115,6 +121,10 @@ function RouteComponent() {
               <ClientInfoCard client={client} />
               <Separator />
               <ContactInfoSection client={client} />
+              <Separator />
+              {client.opportunities && client.opportunities.length > 0 && (
+                <OpportunitiesSummary opportunities={client.opportunities} />
+              )}
             </div>
           </>
         )}
@@ -144,7 +154,9 @@ function CompanyInfoCard({ client }: { client: ClientInfoPage }) {
               <span>{client.company.industry}</span>
             </div>
             <div>
-              <span className="block text-sm text-muted-foreground">Address</span>
+              <span className="block text-sm text-muted-foreground">
+                Address
+              </span>
               <span>{client.company.address}</span>
             </div>
             <div>

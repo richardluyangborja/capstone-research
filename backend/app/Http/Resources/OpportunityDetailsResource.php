@@ -62,6 +62,8 @@ class OpportunityDetailsResource extends JsonResource
             'manpower_requirement' => $this->manpower_requirement,
 
             'created_at' => $this->created_at,
+
+            'stage_histories' => $this->whenLoaded('stageHistories', fn () => StageHistoryResource::collection($this->stageHistories)),
         ];
     }
 }

@@ -51,6 +51,11 @@ class UpdateOpportunityRequest extends FormRequest
             'stage' => [
                 'sometimes',
                 Rule::enum(OpportunityStage::class),
+                function ($attribute, $value, $fail) {
+                    if ($value === OpportunityStage::WON->value) {
+                        $fail('Cannot set stage to WON through this endpoint. Use the win workflow instead.');
+                    }
+                },
             ],
 
             'estimated_contract_value' => [

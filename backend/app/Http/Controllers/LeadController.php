@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateLeadStatusRequest;
 use App\Http\Resources\LeadDetailsResource;
 use App\Http\Resources\LeadResource;
 use App\Models\Lead;
+use App\Models\Reminder;
 use App\Models\StatusHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -96,6 +97,17 @@ class LeadController extends Controller
             'to_status' => $validated['to_status'],
             'reason' => $validated['reason'] ?? null,
         ]);
+
+        if ($validated['to_status'] === 'converted') {
+            Reminder::where('related_to_type', 'lead')
+                ->where('related_to_id', $lead->id)
+                ->where('status', 'pending')
+                ->update([
+                    'status' => 'incomplete',
+                    'is_completed' => false,
+                    'completed_at' => null,
+                ]);
+        }
 
         $lead->load([
             'company.contacts',

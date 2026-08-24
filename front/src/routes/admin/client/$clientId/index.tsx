@@ -16,13 +16,17 @@ import {
   ChevronLeft,
   Info,
   Mail,
+  Minus,
   MoveUpRight,
   Pencil,
   Phone,
   Plus,
   Trash,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react"
 import useClientDetailsQuery from "./-useClientDetailsQuery"
+import { useUpdateClientStatus } from "./-useUpdateClientStatus"
 import { Spinner } from "@/components/ui/spinner"
 import OpportunitiesSummary, {
   type OpportunitySummary,
@@ -34,6 +38,14 @@ import {
   AlertTitle,
 } from "@/components/ui/alert"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   CommunicationHistorySection,
   type CommunicationEntry,
 } from "@/components/communication-history"
@@ -42,6 +54,9 @@ import {
   type ReminderEntry,
 } from "@/components/reminders-history"
 import { Link } from "@tanstack/react-router"
+import { StageTransitionModal } from "@/components/stage-transition-modal"
+import type { StatusHistoryEntry } from "@/components/stage-transition-modal"
+import { useState } from "react"
 
 export type ClientInfoPage = {
   id: number
@@ -80,17 +95,54 @@ export type ClientInfoPage = {
     profileHref?: string
     profileFallback?: string
   }
+  average_score: string | null
+  trend: "up" | "down" | "stable" | null
+  last_survey_date: string | null
   latest_survey?: {
     id: number
     status: "pending" | "completed" | "expired"
     average_score: string | null
     completed_at: string | null
+    created_at: string | null
   } | null
+  status_histories?: StatusHistoryEntry[]
 }
 
 export const Route = createFileRoute("/admin/client/$clientId/")({
   component: RouteComponent,
 })
+
+const clientStatusLabels: Record<"active" | "inactive", string> = {
+  active: "Active",
+  inactive: "Inactive",
+}
+
+const surveyStatusLabels: Record<"pending" | "completed" | "expired", string> = {
+  pending: "Pending",
+  completed: "Completed",
+  expired: "Expired",
+}
+
+const surveyStatusVariant: Record<
+  "pending" | "completed" | "expired",
+  "default" | "secondary" | "outline"
+> = {
+  pending: "outline",
+  completed: "default",
+  expired: "secondary",
+}
+
+const trendLabels: Record<"up" | "down" | "stable", string> = {
+  up: "Improving",
+  down: "Declining",
+  stable: "Stable",
+}
+
+function TrendIcon({ trend }: { trend: "up" | "down" | "stable" }) {
+  if (trend === "up") return <TrendingUp className="size-4" />
+  if (trend === "down") return <TrendingDown className="size-4" />
+  return <Minus className="size-4" />
+}
 
 function RouteComponent() {
   const router = useRouter()
@@ -140,18 +192,18 @@ function RouteComponent() {
             <div className="mt-6 flex flex-col gap-6">
               <CompanyInfoCard client={client} />
               <ClientInfoCard client={client} />
+              {client.status_histories &&
+                client.status_histories.length > 0 && (
+                  <StatusHistorySection histories={client.status_histories} />
+                )}
               <Separator />
               <ContactInfoSection client={client} />
               <Separator />
               {client.opportunities && client.opportunities.length > 0 && (
                 <OpportunitiesSummary opportunities={client.opportunities} />
               )}
-              {client.latest_survey && (
-                <>
-                  <Separator />
-                  <ClientSurveySummary client={client} />
-                </>
-              )}
+              <Separator />
+              <ClientSurveySummary client={client} />
               <Separator />
               <CommunicationHistorySection
                 communications={client.communications ?? []}
@@ -220,6 +272,50 @@ function CompanyInfoCard({ client }: { client: ClientInfoPage }) {
 }
 
 function ClientInfoCard({ client }: { client: ClientInfoPage }) {
+  const updateStatusMutation = useUpdateClientStatus(client.id)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [targetStatus, setTargetStatus] = useState<"active" | "inactive">(
+    "inactive"
+  )
+  const [confirmOpen, setConfirmOpen] = useState(false)
+
+  const pendingReminders = (client.reminders ?? []).filter(
+    (r) => !r.is_completed && r.related_to_type === "client" && r.related_to_id === client.id
+  )
+
+  const handleToggleClick = () => {
+    const next = client.status === "active" ? "inactive" : "active"
+    if (next === "inactive" && pendingReminders.length > 0) {
+      setConfirmOpen(true)
+      return
+    }
+    setTargetStatus(next)
+    setModalOpen(true)
+  }
+
+  const handleConfirm = () => {
+    setConfirmOpen(false)
+    setTargetStatus("inactive")
+    setModalOpen(true)
+  }
+
+  const handleModalSubmit = async (reason: string) => {
+    await updateStatusMutation.mutateAsync({
+      status: targetStatus,
+      reason,
+    })
+  }
+
+  const modalTitle =
+    targetStatus === "inactive"
+      ? "Mark Client as Inactive"
+      : "Mark Client as Active"
+
+  const modalDescription =
+    targetStatus === "inactive"
+      ? "Provide details about why this client is being marked as inactive."
+      : "Provide details about why this client is being marked as active."
+
   return (
     <section>
       <Card>
@@ -228,7 +324,7 @@ function ClientInfoCard({ client }: { client: ClientInfoPage }) {
           <CardDescription>
             Client since {new Date(client.client_since).toDateString()}
           </CardDescription>
-          <CardAction>
+          <CardAction className="flex items-center gap-2">
             {client.lead && (
               <Button variant="link" size="sm" asChild>
                 <a href={`/admin/lead/${client.lead.id}`}>
@@ -237,6 +333,18 @@ function ClientInfoCard({ client }: { client: ClientInfoPage }) {
                 </a>
               </Button>
             )}
+            <Button
+              variant={client.status === "active" ? "destructive" : "default"}
+              size="sm"
+              onClick={handleToggleClick}
+              disabled={updateStatusMutation.isPending}
+            >
+              {updateStatusMutation.isPending
+                ? "Updating..."
+                : client.status === "active"
+                  ? "Mark as Inactive"
+                  : "Mark as Active"}
+            </Button>
           </CardAction>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-4">
@@ -272,6 +380,71 @@ function ClientInfoCard({ client }: { client: ClientInfoPage }) {
           </div>
         </CardContent>
       </Card>
+
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Mark Client as Inactive?</DialogTitle>
+            <DialogDescription>
+              This client has {pendingReminders.length} pending reminder{pendingReminders.length === 1 ? '' : 's'}. 
+              The client will be marked as inactive, but existing reminders will remain.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirm}>
+              Mark as Inactive
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <StageTransitionModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        title={modalTitle}
+        description={modalDescription}
+        isPending={updateStatusMutation.isPending}
+        onSubmit={handleModalSubmit}
+      />
+    </section>
+  )
+}
+
+function StatusHistorySection({
+  histories,
+}: {
+  histories: StatusHistoryEntry[]
+}) {
+  return (
+    <section>
+      <h3 className="my-3 font-heading text-lg">Status History</h3>
+      <div className="flex flex-col gap-3">
+        {histories.map((h) => (
+          <div key={h.id} className="border-l-2 border-muted pl-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <span className="text-sm font-medium">
+                  {h.from_status
+                    ? `${clientStatusLabels[h.from_status as "active" | "inactive"]} → ${clientStatusLabels[h.to_status as "active" | "inactive"]}`
+                    : clientStatusLabels[h.to_status as "active" | "inactive"]}
+                </span>
+                <span className="block text-xs text-muted-foreground">
+                  {new Date(h.created_at).toLocaleString()}
+                </span>
+              </div>
+              {h.user && (
+                <span className="text-xs text-muted-foreground">
+                  {h.user.name}
+                </span>
+              )}
+            </div>
+            {h.reason && <p className="mt-1 text-sm">{h.reason}</p>}
+          </div>
+        ))}
+      </div>
     </section>
   )
 }
@@ -331,20 +504,16 @@ function ContactInfoSection({ client }: { client: ClientInfoPage }) {
 }
 
 function ClientSurveySummary({ client }: { client: ClientInfoPage }) {
-  const survey = client.latest_survey
-
-  if (!survey) return null
-
-  const score = survey.average_score ? Number(survey.average_score) : null
+  const score = client.average_score !== null
+    ? Number(client.average_score)
+    : null
 
   return (
     <section>
       <Card>
         <CardHeader>
-          <div className="flex items-center gap-2">
-            <CardTitle>Latest Satisfaction Survey</CardTitle>
-            <Badge variant="secondary">Completed</Badge>
-          </div>
+          <CardTitle>Client Satisfaction</CardTitle>
+          <CardDescription>Survey performance overview</CardDescription>
           <CardAction>
             <Button variant="link" size="sm" asChild>
               <Link
@@ -363,23 +532,84 @@ function ClientSurveySummary({ client }: { client: ClientInfoPage }) {
               <span className="block text-sm text-muted-foreground">
                 Average Score
               </span>
-              <span className="text-2xl font-semibold">
-                {score !== null ? score.toFixed(1) : "—"}
-              </span>
+              <div className="mt-1 flex items-center gap-2">
+                {score !== null ? (
+                  <>
+                    <span className="text-2xl font-semibold">
+                      {score.toFixed(1)}
+                    </span>
+                    <Badge
+                      variant={
+                        score >= 4
+                          ? "default"
+                          : score >= 3
+                            ? "secondary"
+                            : "destructive"
+                      }
+                    >
+                      {score >= 4
+                        ? "Good"
+                        : score >= 3
+                          ? "Fair"
+                          : "Poor"}
+                    </Badge>
+                  </>
+                ) : (
+                  <span className="text-muted-foreground">No data</span>
+                )}
+              </div>
             </div>
             <div>
               <span className="block text-sm text-muted-foreground">
-                Completed At
+                Trend
               </span>
-              <span>
-                {survey.completed_at
-                  ? new Date(survey.completed_at).toLocaleDateString()
-                  : "—"}
-              </span>
+              <div className="mt-1 flex items-center gap-2">
+                {client.trend ? (
+                  <>
+                    <TrendIcon trend={client.trend} />
+                    <span className="text-sm font-medium">
+                      {trendLabels[client.trend]}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-muted-foreground">
+                    Not enough data
+                  </span>
+                )}
+              </div>
             </div>
             <div>
-              <span className="block text-sm text-muted-foreground">Status</span>
-              <Badge variant="default">{survey.status}</Badge>
+              <span className="block text-sm text-muted-foreground">
+                Last Survey
+              </span>
+              <div className="mt-1 flex flex-col gap-1">
+                {client.latest_survey ? (
+                  <>
+                    <Badge
+                      variant={
+                        surveyStatusVariant[client.latest_survey.status]
+                      }
+                    >
+                      {surveyStatusLabels[client.latest_survey.status]}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {client.latest_survey.completed_at
+                        ? new Date(
+                            client.latest_survey.completed_at
+                          ).toLocaleDateString()
+                        : client.last_survey_date
+                          ? new Date(
+                              client.last_survey_date
+                            ).toLocaleDateString()
+                          : "—"}
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-muted-foreground">
+                    No surveys
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </CardContent>

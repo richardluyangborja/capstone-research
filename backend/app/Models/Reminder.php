@@ -16,6 +16,7 @@ class Reminder extends Model
         'description',
         'due_date',
         'priority',
+        'status',
         'is_completed',
         'completed_at',
         'assigned_to_name',
@@ -24,6 +25,7 @@ class Reminder extends Model
     protected $casts = [
         'due_date' => 'date',
         'priority' => ReminderPriority::class,
+        'status' => 'string',
         'is_completed' => 'boolean',
         'completed_at' => 'datetime',
     ];

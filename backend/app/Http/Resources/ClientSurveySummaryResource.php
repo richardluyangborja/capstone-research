@@ -14,6 +14,7 @@ class ClientSurveySummaryResource extends JsonResource
             'status' => $this->status->value,
             'average_score' => $this->average_score,
             'completed_at' => $this->completed_at,
+            'created_at' => $this->created_at,
         ];
     }
 }

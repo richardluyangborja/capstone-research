@@ -13,6 +13,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { createFileRoute, useRouter } from "@tanstack/react-router"
 import {
+  AlertTriangle,
   ChevronLeft,
   Info,
   Mail,
@@ -110,9 +111,13 @@ export const leadStatusTransitions: Record<
 > = {
   new: [
     { label: "Qualify Lead", value: "qualified" },
+    { label: "Convert to Client", value: "converted" },
     { label: "Disqualify Lead", value: "disqualified" },
   ],
-  qualified: [{ label: "Disqualify Lead", value: "disqualified" }],
+  qualified: [
+    { label: "Convert to Client", value: "converted" },
+    { label: "Disqualify Lead", value: "disqualified" },
+  ],
   disqualified: [],
   converted: [],
 }
@@ -195,6 +200,18 @@ function RouteComponent() {
                 communications={lead.communications ?? []}
               />
               <Separator />
+              {lead.status === "converted" &&
+                lead.reminders?.some((r) => r.status === "pending") && (
+                  <Alert variant="destructive">
+                    <AlertTriangle />
+                    <AlertTitle>Pending Reminders on Converted Lead</AlertTitle>
+                    <AlertDescription>
+                      This lead has been converted to a client, but still has
+                      pending reminders. These reminders should be marked as
+                      incomplete.
+                    </AlertDescription>
+                  </Alert>
+                )}
               <ReminderHistorySection reminders={lead.reminders ?? []} />
             </div>{" "}
           </>
@@ -288,12 +305,16 @@ function LeadInfoCard({ lead }: { lead: LeadInfoPage }) {
   const modalTitle =
     activeTransition?.value === "disqualified"
       ? "Disqualify Lead"
-      : "Qualify Lead"
+      : activeTransition?.value === "converted"
+        ? "Convert Lead to Client"
+        : "Qualify Lead"
 
   const modalDescription =
     activeTransition?.value === "disqualified"
       ? "Provide details about why this lead was disqualified."
-      : "Provide details about why this lead is being qualified."
+      : activeTransition?.value === "converted"
+        ? "Provide details about this conversion. Pending follow-up reminders will be marked as incomplete."
+        : "Provide details about why this lead is being qualified."
 
   return (
     <section>

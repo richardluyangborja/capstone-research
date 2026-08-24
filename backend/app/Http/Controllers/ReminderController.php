@@ -24,7 +24,10 @@ class ReminderController extends Controller
 
     public function store(StoreReminderRequest $request)
     {
-        $reminder = Reminder::create($request->validated());
+        $reminder = Reminder::create(array_merge(
+            $request->validated(),
+            ['status' => 'pending']
+        ));
 
         $reminder->load([
             'company',
@@ -47,8 +50,25 @@ class ReminderController extends Controller
     public function update(Reminder $reminder)
     {
         $reminder->update([
+            'status' => 'completed',
             'is_completed' => true,
             'completed_at' => now(),
+        ]);
+
+        $reminder->load([
+            'company',
+            'relatedTo',
+        ]);
+
+        return new ReminderResource($reminder);
+    }
+
+    public function markIncomplete(Reminder $reminder)
+    {
+        $reminder->update([
+            'status' => 'incomplete',
+            'is_completed' => false,
+            'completed_at' => null,
         ]);
 
         $reminder->load([

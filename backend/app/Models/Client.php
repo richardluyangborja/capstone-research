@@ -52,6 +52,11 @@ class Client extends Model
         return $this->morphMany(Reminder::class, 'related_to');
     }
 
+    public function statusHistories()
+    {
+        return $this->hasMany(ClientStatusHistory::class)->orderBy('created_at', 'desc');
+    }
+
     public function surveys()
     {
         return $this->hasMany(ClientSurvey::class);

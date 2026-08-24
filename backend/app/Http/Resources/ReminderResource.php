@@ -37,6 +37,18 @@ class ReminderResource extends JsonResource
                 return 'Unknown';
             }),
 
+            'related_to_status' => $this->whenLoaded('relatedTo', function () {
+                $related = $this->relatedTo;
+                if ($related instanceof Lead) {
+                    return $related->status;
+                }
+                if ($related instanceof Client) {
+                    return $related->status;
+                }
+
+                return null;
+            }),
+
             'title' => $this->title,
 
             'description' => $this->description,
@@ -44,6 +56,8 @@ class ReminderResource extends JsonResource
             'due_date' => $this->due_date,
 
             'priority' => $this->priority,
+
+            'status' => $this->status,
 
             'is_completed' => $this->is_completed,
 

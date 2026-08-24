@@ -8,9 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Separator } from "@/components/ui/separator"
 import { createFileRoute, useRouter, Link } from "@tanstack/react-router"
 import {
+  AlertTriangle,
   Bell,
   Calendar,
   CheckCircle,
@@ -18,16 +20,17 @@ import {
   Loader2,
   Pencil,
   User,
+  XCircle,
 } from "lucide-react"
 import { Spinner } from "@/components/ui/spinner"
 import {
   ReminderPriorityBadge,
   ReminderStatusBadge,
-  relatedTypeIcons,
   type ReminderEntry,
 } from "@/components/reminders-history"
 import useReminderDetailsQuery from "../-useReminderDetailsQuery"
 import { useUpdateReminder } from "../-useUpdateReminder"
+import { useMarkReminderIncomplete } from "../-useMarkReminderIncomplete"
 
 export const Route = createFileRoute("/admin/reminders/$reminderId/")({
   component: RouteComponent,
@@ -39,10 +42,7 @@ function RouteComponent() {
   const query = useReminderDetailsQuery(reminderId)
   const reminder = query.data
   const updateMutation = useUpdateReminder()
-
-  const RelatedIcon = reminder
-    ? relatedTypeIcons[reminder.related_to_type]
-    : null
+  const markIncompleteMutation = useMarkReminderIncomplete()
 
   const dueDate = reminder ? new Date(reminder.due_date) : null
   const dueFormatted = dueDate
@@ -85,20 +85,35 @@ function RouteComponent() {
                   <h1 className="font-heading text-lg">{reminder.title}</h1>
                   <div className="flex items-center gap-2">
                     <ReminderPriorityBadge priority={reminder.priority} />
-                    <ReminderStatusBadge completed={reminder.is_completed} />
+                    <ReminderStatusBadge status={reminder.status} />
                   </div>
                 </div>
               </div>
             </header>
 
             <div className="mt-6 flex flex-col gap-6">
+              {reminder.status === "pending" &&
+                reminder.related_to_type === "lead" &&
+                reminder.related_to_status === "converted" && (
+                  <Alert variant="destructive">
+                    <AlertTriangle />
+                    <AlertTitle>
+                      Pending Reminder on Converted Lead
+                    </AlertTitle>
+                    <AlertDescription>
+                      This reminder is still pending, but the related lead
+                      has been converted to a client. Please mark it as
+                      incomplete.
+                    </AlertDescription>
+                  </Alert>
+                )}
               <ReminderDetailCard
                 reminder={reminder}
                 dueFormatted={dueFormatted}
                 createdAtFormatted={createdAtFormatted}
-                RelatedIcon={RelatedIcon}
                 onMarkComplete={() => updateMutation.mutate(Number(reminderId))}
-                isMarkingComplete={updateMutation.isPending}
+                onMarkIncomplete={() => markIncompleteMutation.mutate(Number(reminderId))}
+                isMarkingComplete={updateMutation.isPending || markIncompleteMutation.isPending}
               />
             </div>
           </>
@@ -112,15 +127,15 @@ function ReminderDetailCard({
   reminder,
   dueFormatted,
   createdAtFormatted,
-  RelatedIcon,
   onMarkComplete,
+  onMarkIncomplete,
   isMarkingComplete,
 }: {
   reminder: ReminderEntry
   dueFormatted: string | null
   createdAtFormatted: string | null
-  RelatedIcon: React.ElementType | null
   onMarkComplete: () => void
+  onMarkIncomplete: () => void
   isMarkingComplete: boolean
 }) {
   return (
@@ -130,21 +145,32 @@ function ReminderDetailCard({
           <CardTitle>Reminder Details</CardTitle>
           <CardDescription>Created on {createdAtFormatted}</CardDescription>
           <CardAction className="flex items-center gap-2">
-            {!reminder.is_completed && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={onMarkComplete}
-                disabled={isMarkingComplete}
-              >
-                {isMarkingComplete ? (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                ) : (
-                  <CheckCircle className="mr-2 size-4" />
-                )}
-                {isMarkingComplete ? "Marking..." : "Mark as Complete"}
-              </Button>
-            )}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onMarkComplete}
+              disabled={isMarkingComplete || reminder.status === "completed"}
+            >
+              {isMarkingComplete ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : (
+                <CheckCircle className="mr-2 size-4" />
+              )}
+              {isMarkingComplete ? "Marking..." : "Mark as Complete"}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={onMarkIncomplete}
+              disabled={isMarkingComplete || reminder.status === "incomplete"}
+            >
+              {isMarkingComplete ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : (
+                <XCircle className="mr-2 size-4" />
+              )}
+              {isMarkingComplete ? "Marking..." : "Mark as Incomplete"}
+            </Button>
             <Link
               to="/admin/reminders/create"
               className="inline-flex items-center justify-center rounded-md border border-input bg-background px-3 text-sm font-medium shadow-xs hover:bg-accent"
@@ -166,7 +192,7 @@ function ReminderDetailCard({
               <span className="block text-sm text-muted-foreground">
                 Status
               </span>
-              <ReminderStatusBadge completed={reminder.is_completed} />
+              <ReminderStatusBadge status={reminder.status} />
             </div>
             <div className="col-span-2">
               <span className="block text-sm text-muted-foreground">
@@ -185,17 +211,6 @@ function ReminderDetailCard({
                 <p className="mt-1 text-sm">{reminder.description}</p>
               </div>
             )}
-            <div>
-              <span className="block text-sm text-muted-foreground">
-                Related To
-              </span>
-              <div className="flex items-center gap-2">
-                {RelatedIcon && <RelatedIcon size={16} />}
-                <span className="capitalize">
-                  {reminder.related_to_type}: {reminder.related_to_name}
-                </span>
-              </div>
-            </div>
             <div>
               <span className="block text-sm text-muted-foreground">
                 Assigned To

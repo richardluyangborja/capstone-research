@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Ellipsis, FunnelPlus, Search } from "lucide-react"
+import { Ellipsis, FunnelPlus, Minus, Search, TrendingDown, TrendingUp } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +25,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import useClientsQuery from "./-useClientsQuery"
 import { Spinner } from "@/components/ui/spinner"
 
+const trendLabels: Record<"up" | "down" | "stable", string> = {
+  up: "Improving",
+  down: "Declining",
+  stable: "Stable",
+}
+
 export type ClientTableRow = {
   id: number
   company: {
@@ -33,18 +39,17 @@ export type ClientTableRow = {
     logoHref?: string
     logoFallback?: string
   }
-  source: string
   primary_contact?: {
     name: string
     title: string
   }
   status: "active" | "inactive"
+  trend: "up" | "down" | "stable" | null
   sales_representative: {
     name: string
     profileHref?: string
     profileFallback?: string
   }
-  recent_activity?: Date
 }
 
 export default function ClientTable() {
@@ -73,11 +78,10 @@ export default function ClientTable() {
             <TableHeader>
               <TableRow>
                 <TableHead>Company</TableHead>
-                <TableHead>Source</TableHead>
                 <TableHead>Primary Contact</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Trend</TableHead>
                 <TableHead>Sales Representative</TableHead>
-                <TableHead>Last Activity</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -107,7 +111,6 @@ export default function ClientTable() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>{client.source}</TableCell>
                   <TableCell className="flex flex-col">
                     <span>{client.primary_contact?.name}</span>
                     <span className="text-xs text-muted-foreground">
@@ -116,6 +119,34 @@ export default function ClientTable() {
                   </TableCell>
                   <TableCell>
                     <Badge variant="secondary">{client.status}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {client.trend === "up" && (
+                        <>
+                          <TrendingUp className="size-4 text-emerald-500" />
+                          <span className="text-xs text-emerald-500">
+                            {trendLabels["up"]}
+                          </span>
+                        </>
+                      )}
+                      {client.trend === "down" && (
+                        <>
+                          <TrendingDown className="size-4 text-rose-500" />
+                          <span className="text-xs text-rose-500">
+                            {trendLabels["down"]}
+                          </span>
+                        </>
+                      )}
+                      {client.trend === "stable" && (
+                        <>
+                          <Minus className="size-4 text-muted-foreground" />
+                          <span className="text-xs text-muted-foreground">
+                            {trendLabels["stable"]}
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -130,7 +161,6 @@ export default function ClientTable() {
                       <span>{client.sales_representative.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{client.recent_activity?.toDateString()}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

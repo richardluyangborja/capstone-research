@@ -675,19 +675,19 @@ class CrmSeeder extends Seeder
         ]);
 
         $this->createReminders($metroRetail, $metroLead->id, [
-            ['Renewal discussion for seasonal contract', 'Discuss extending seasonal staffing beyond January.', now()->addMonth(), ReminderPriority::MEDIUM, false, null, 'Juan Dela Cruz'],
-            ['Inventory staffing kickoff', 'Begin deployment of 15 inventory clerks for Q1 cycle count.', now()->addDays(5), ReminderPriority::HIGH, false, null, 'Juan Dela Cruz'],
+            ['Renewal discussion for seasonal contract', 'Discuss extending seasonal staffing beyond January.', now()->addMonth(), ReminderPriority::MEDIUM, true, now()->subDays(30), 'Juan Dela Cruz'],
+            ['Inventory staffing kickoff', 'Begin deployment of 15 inventory clerks for Q1 cycle count.', now()->addDays(5), ReminderPriority::HIGH, true, now()->subDays(15), 'Juan Dela Cruz'],
         ]);
 
         $this->createReminders($pacificProperties, $pacificLead->id, [
-            ['Site safety briefing coordination', 'Schedule mandatory safety orientation for construction site helpers.', now()->addDays(4), ReminderPriority::MEDIUM, false, null, 'Juan Dela Cruz'],
-            ['Contract extension review', 'Review terms for extending construction site manpower beyond initial period.', now()->addWeeks(2), ReminderPriority::LOW, false, null, 'Juan Dela Cruz'],
+            ['Site safety briefing coordination', 'Schedule mandatory safety orientation for construction site helpers.', now()->addDays(4), ReminderPriority::MEDIUM, true, now()->subDays(10), 'Juan Dela Cruz'],
+            ['Contract extension review', 'Review terms for extending construction site manpower beyond initial period.', now()->addWeeks(2), ReminderPriority::LOW, true, now()->subDays(5), 'Juan Dela Cruz'],
             ['Follow up on previous meeting notes', 'Send action items from last week\'s project alignment meeting.', now()->subDay(), ReminderPriority::LOW, true, now()->subHours(12), 'Maria Santos'],
         ]);
 
         $this->createReminders($summitCorp, $summitLead->id, [
-            ['Q3 review meeting', 'Prepare quarterly review slides for scope expansion to Makati office.', now()->addDays(3), ReminderPriority::HIGH, false, null, 'Juan Dela Cruz'],
-            ['Payment confirmation follow-up', 'Follow up on Q3 payment status for the 40 general office staff contract.', now()->addDays(1), ReminderPriority::MEDIUM, false, null, 'Juan Dela Cruz'],
+            ['Q3 review meeting', 'Prepare quarterly review slides for scope expansion to Makati office.', now()->addDays(3), ReminderPriority::HIGH, true, now()->subDays(7), 'Juan Dela Cruz'],
+            ['Payment confirmation follow-up', 'Follow up on Q3 payment status for the 40 general office staff contract.', now()->addDays(1), ReminderPriority::MEDIUM, true, now()->subDays(3), 'Juan Dela Cruz'],
         ]);
     }
 

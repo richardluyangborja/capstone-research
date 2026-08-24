@@ -14,6 +14,7 @@ import {
   Clock,
   MoveUpRight,
   UserCheck,
+  XCircle,
 } from "lucide-react"
 import { Link } from "@tanstack/react-router"
 
@@ -25,12 +26,14 @@ export type ReminderEntry = {
   description: string | null
   due_date: string
   priority: ReminderPriority
+  status: "pending" | "completed" | "incomplete"
   is_completed: boolean
   completed_at: string | null
   assigned_to: { id: number; name: string } | null
   related_to_type: "lead" | "client" | "opportunity"
   related_to_id: number
   related_to_name: string
+  related_to_status: string | null
   company: { id: number; name: string; industry: string }
   created_at: string
 }
@@ -85,16 +88,23 @@ export function ReminderPriorityBadge({
   )
 }
 
-export function ReminderStatusBadge({ completed }: { completed: boolean }) {
+export function ReminderStatusBadge({ status }: { status: string }) {
+  const isCompleted = status === "completed"
+  const isIncomplete = status === "incomplete"
   return (
     <Badge
-      variant={completed ? "secondary" : "outline"}
+      variant={isCompleted || isIncomplete ? "secondary" : "outline"}
       className="flex items-center gap-1 text-xs"
     >
-      {completed ? (
+      {isCompleted ? (
         <>
           <CheckCircle size={10} />
           <span>Completed</span>
+        </>
+      ) : isIncomplete ? (
+        <>
+          <XCircle size={10} />
+          <span>Incomplete</span>
         </>
       ) : (
         <>
@@ -106,8 +116,8 @@ export function ReminderStatusBadge({ completed }: { completed: boolean }) {
   )
 }
 
-function isOverdue(dueDateString: string, isCompleted: boolean): boolean {
-  if (isCompleted) return false
+function isOverdue(dueDateString: string, status: string): boolean {
+  if (status === "completed" || status === "incomplete") return false
   const due = new Date(dueDateString)
   const now = new Date()
   return due < now
@@ -133,8 +143,9 @@ export function ReminderHistorySection({
     return aTime - bTime
   })
 
-  const pending = sorted.filter((r) => !r.is_completed)
-  const completed = sorted.filter((r) => r.is_completed)
+  const pending = sorted.filter((r) => r.status === "pending")
+  const completed = sorted.filter((r) => r.status === "completed")
+  const incomplete = sorted.filter((r) => r.status === "incomplete")
 
   return (
     <section>
@@ -149,31 +160,47 @@ export function ReminderHistorySection({
         {pending.map((r) => (
           <ReminderCard key={r.id} reminder={r} />
         ))}
-        {pending.length === 0 && completed.length > 0 && (
+        {pending.length === 0 && completed.length === 0 && incomplete.length === 0 && (
           <p className="text-sm text-muted-foreground">
-            All reminders completed.
+            No reminders.
           </p>
         )}
       </div>
 
+      {(completed.length > 0 || incomplete.length > 0) && (
+        <Separator className="my-3" />
+      )}
       {completed.length > 0 && (
-        <>
-          <Separator className="my-3" />
-          <details className="group">
-            <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
-              <span>Completed ({completed.length})</span>
-              <ChevronDown
-                size={16}
-                className="transition-transform group-open:rotate-180"
-              />
-            </summary>
-            <div className="mt-3 flex flex-col gap-3">
-              {completed.map((r) => (
-                <ReminderCard key={r.id} reminder={r} />
-              ))}
-            </div>
-          </details>
-        </>
+        <details className="group">
+          <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+            <span>Completed ({completed.length})</span>
+            <ChevronDown
+              size={16}
+              className="transition-transform group-open:rotate-180"
+            />
+          </summary>
+          <div className="mt-3 flex flex-col gap-3">
+            {completed.map((r) => (
+              <ReminderCard key={r.id} reminder={r} />
+            ))}
+          </div>
+        </details>
+      )}
+      {incomplete.length > 0 && (
+        <details className="group">
+          <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium text-destructive hover:text-destructive/80">
+            <span>Incomplete ({incomplete.length})</span>
+            <ChevronDown
+              size={16}
+              className="transition-transform group-open:rotate-180"
+            />
+          </summary>
+          <div className="mt-3 flex flex-col gap-3">
+            {incomplete.map((r) => (
+              <ReminderCard key={r.id} reminder={r} />
+            ))}
+          </div>
+        </details>
       )}
     </section>
   )
@@ -188,9 +215,7 @@ function ReminderCard({ reminder }: { reminder: ReminderEntry }) {
     hour: "2-digit",
     minute: "2-digit",
   })
-  const overdue = isOverdue(reminder.due_date, reminder.is_completed)
-  const Icon = relatedTypeIcons[reminder.related_to_type]
-
+  const overdue = isOverdue(reminder.due_date, reminder.status)
   return (
     <div
       className={cn(
@@ -211,19 +236,12 @@ function ReminderCard({ reminder }: { reminder: ReminderEntry }) {
               </Badge>
             )}
             <ReminderPriorityBadge priority={reminder.priority} />
-            <ReminderStatusBadge completed={reminder.is_completed} />
+            <ReminderStatusBadge status={reminder.status} />
           </div>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Clock size={12} />
             <time dateTime={reminder.due_date}>{formattedDate}</time>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Icon size={14} className="text-muted-foreground" />
-          <span className="text-sm font-medium">
-            {reminder.related_to_type}: {reminder.related_to_name}
-          </span>
         </div>
 
         <p className="text-sm font-medium">{reminder.title}</p>

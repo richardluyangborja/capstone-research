@@ -52,6 +52,8 @@ class ClientDetailsResource extends JsonResource
                 'status' => $this->lead->status->value,
             ] : null),
 
+            'status_histories' => $this->whenLoaded('statusHistories', fn () => StatusHistoryResource::collection($this->statusHistories)),
+
             'communications' => $this->whenLoaded('communications', fn () => CommunicationResource::collection($this->communications)),
 
             'reminders' => $this->whenLoaded('reminders', fn () => ReminderResource::collection($this->reminders)),
@@ -65,6 +67,43 @@ class ClientDetailsResource extends JsonResource
                     ->sortByDesc('completed_at')
                     ->first())
                 : null),
+
+            'average_score' => $this->whenLoaded('surveys', fn () => $this->surveys
+                ->where('status', 'completed')
+                ->avg('average_score')),
+
+            'trend' => $this->whenLoaded('surveys', function () {
+                $completed = $this->surveys
+                    ->where('status', 'completed')
+                    ->sortByDesc('completed_at')
+                    ->values();
+
+                if ($completed->isEmpty()) {
+                    return null;
+                }
+
+                if ($completed->count() === 1) {
+                    return 'stable';
+                }
+
+                $last = (float) $completed[0]->average_score;
+                $previous = (float) $completed[1]->average_score;
+
+                if ($last > $previous) {
+                    return 'up';
+                }
+
+                if ($last < $previous) {
+                    return 'down';
+                }
+
+                return 'stable';
+            }),
+
+            'last_survey_date' => $this->whenLoaded('surveys', fn () => $this->surveys
+                ->sortByDesc('created_at')
+                ->first()
+                ?->created_at),
 
             'sales_representative' => [
                 'id' => $this->assignedTo->id,

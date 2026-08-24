@@ -45,7 +45,6 @@ export type LeadTableRow = {
     profileHref?: string
     profileFallback?: string
   }
-  recent_activity?: Date
 }
 
 export default function LeadTable() {
@@ -86,7 +85,6 @@ export default function LeadTable() {
                 <TableHead>Primary Contact</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Sales Representative</TableHead>
-                <TableHead>Recent Activity</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -139,7 +137,6 @@ export default function LeadTable() {
                       <span>{lead.sales_representative.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{lead.recent_activity?.toDateString()}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

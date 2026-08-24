@@ -26,7 +26,6 @@ import { Spinner } from "@/components/ui/spinner"
 import {
   ReminderPriorityBadge,
   ReminderStatusBadge,
-  relatedTypeIcons,
   type ReminderPriority,
 } from "@/components/reminders-history"
 import useRemindersQuery from "./-useRemindersQuery"
@@ -43,24 +42,6 @@ export type ReminderTableRow = {
   is_completed: boolean
   assigned_to: { id: number; name: string } | null
   created_at: string
-}
-
-function RelatedTypeCell({
-  relatedToType,
-}: {
-  relatedToType: "lead" | "client" | "opportunity"
-}) {
-  const Icon = relatedTypeIcons[relatedToType]
-  return (
-    <div className="flex items-center gap-2">
-      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-muted">
-        <Icon size={12} className="text-muted-foreground" />
-      </div>
-      <Badge variant="outline" className="text-xs capitalize">
-        {relatedToType}
-      </Badge>
-    </div>
-  )
 }
 
 function formatDate(dateString: string): string {
@@ -106,7 +87,6 @@ export default function RemindersTable() {
             <TableHeader>
               <TableRow>
                 <TableHead>Company</TableHead>
-                <TableHead>Related To</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Due Date</TableHead>
                 <TableHead>Priority</TableHead>
@@ -147,12 +127,6 @@ export default function RemindersTable() {
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <RelatedTypeCell relatedToType={reminder.related_to_type} />
-                    <span className="ml-2 text-sm">
-                      {reminder.related_to_name}
-                    </span>
-                  </TableCell>
                   <TableCell className="font-medium">
                     {reminder.title}
                   </TableCell>
@@ -165,7 +139,7 @@ export default function RemindersTable() {
                     <ReminderPriorityBadge priority={reminder.priority} />
                   </TableCell>
                   <TableCell>
-                    <ReminderStatusBadge completed={reminder.is_completed} />
+                    <ReminderStatusBadge status={reminder.status} />
                   </TableCell>
                   <TableCell>
                     {reminder.assigned_to ? (

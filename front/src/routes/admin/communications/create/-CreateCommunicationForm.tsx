@@ -29,6 +29,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/ui/alert"
+import {
   communicationTypeLabels,
   type CommunicationType,
   formatDuration,
@@ -166,6 +171,17 @@ export function CreateCommunicationForm() {
                   )
                 }}
               </form.Field>
+
+              <Alert>
+                <AlertTitle>Direction</AlertTitle>
+                <AlertDescription>
+                  <strong>Inbound</strong> — the communication was received from
+                  the contact or company (e.g. an incoming email or call).
+                  <br />
+                  <strong>Outbound</strong> — the communication was initiated by
+                  your team (e.g. an outgoing email, call, or meeting).
+                </AlertDescription>
+              </Alert>
             </FieldGroup>
           </FieldSet>
 

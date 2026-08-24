@@ -38,6 +38,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('clients', ClientController::class)
         ->only(['index', 'show']);
 
+    Route::patch('clients/{client}/status', [ClientController::class, 'updateStatus']);
+
     Route::apiResource('opportunities', OpportunityController::class)
         ->except(['destroy']);
 
@@ -50,6 +52,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('reminders', ReminderController::class)
         ->only(['index', 'show', 'store', 'update']);
+
+    Route::patch('reminders/{reminder}/incomplete', [ReminderController::class, 'markIncomplete']);
 
     Route::get('satisfaction', [ClientSatisfactionController::class, 'index']);
     Route::get('satisfaction/{client}', [ClientSatisfactionController::class, 'show']);

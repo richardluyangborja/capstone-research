@@ -110,7 +110,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link to="/admin/dashboard-and-analytics">
+              <Link to="/admin/dashboard">
                 <img
                   src="/pms-logo.png"
                   alt="pms-logo"

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Client;
 use App\Models\Lead;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -31,6 +32,21 @@ class StoreOpportunityRequest extends FormRequest
 
                         if ($lead && $lead->company_id !== (int) $this->input('company_id')) {
                             $fail('The selected lead does not belong to the selected company.');
+                        }
+                    }
+                },
+            ],
+
+            'client_id' => [
+                'nullable',
+                'integer',
+                'exists:clients,id',
+                function ($attribute, $value, $fail) {
+                    if ($value) {
+                        $client = Client::find($value);
+
+                        if ($client && $client->company_id !== (int) $this->input('company_id')) {
+                            $fail('The selected client does not belong to the selected company.');
                         }
                     }
                 },

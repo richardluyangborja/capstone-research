@@ -15,7 +15,7 @@ import { Route as AdminLeadAndClientRouteRouteImport } from './routes/admin/lead
 import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as SurveyTokenRouteImport } from './routes/survey/$token'
 import { Route as AdminCommunicationsIndexRouteImport } from './routes/admin/communications/index'
-import { Route as AdminDashboardAndAnalyticsIndexRouteImport } from './routes/admin/dashboard-and-analytics/index'
+import { Route as AdminDashboardIndexRouteImport } from './routes/admin/dashboard/index'
 import { Route as AdminOpportunitiesIndexRouteImport } from './routes/admin/opportunities/index'
 import { Route as AdminRemindersIndexRouteImport } from './routes/admin/reminders/index'
 import { Route as AdminSatisfactionIndexRouteImport } from './routes/admin/satisfaction/index'
@@ -64,12 +64,11 @@ const AdminCommunicationsIndexRoute =
     path: '/communications/',
     getParentRoute: () => AdminRouteRoute,
   } as any)
-const AdminDashboardAndAnalyticsIndexRoute =
-  AdminDashboardAndAnalyticsIndexRouteImport.update({
-    id: '/dashboard-and-analytics/',
-    path: '/dashboard-and-analytics/',
-    getParentRoute: () => AdminRouteRoute,
-  } as any)
+const AdminDashboardIndexRoute = AdminDashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
 const AdminOpportunitiesIndexRoute = AdminOpportunitiesIndexRouteImport.update({
   id: '/opportunities/',
   path: '/opportunities/',
@@ -169,7 +168,7 @@ export interface FileRoutesByFullPath {
   '/survey/$token': typeof SurveyTokenRoute
   '/login/': typeof LoginIndexRoute
   '/admin/communications/': typeof AdminCommunicationsIndexRoute
-  '/admin/dashboard-and-analytics/': typeof AdminDashboardAndAnalyticsIndexRoute
+  '/admin/dashboard/': typeof AdminDashboardIndexRoute
   '/admin/opportunities/': typeof AdminOpportunitiesIndexRoute
   '/admin/reminders/': typeof AdminRemindersIndexRoute
   '/admin/satisfaction/': typeof AdminSatisfactionIndexRoute
@@ -194,7 +193,7 @@ export interface FileRoutesByTo {
   '/survey/$token': typeof SurveyTokenRoute
   '/login': typeof LoginIndexRoute
   '/admin/communications': typeof AdminCommunicationsIndexRoute
-  '/admin/dashboard-and-analytics': typeof AdminDashboardAndAnalyticsIndexRoute
+  '/admin/dashboard': typeof AdminDashboardIndexRoute
   '/admin/opportunities': typeof AdminOpportunitiesIndexRoute
   '/admin/reminders': typeof AdminRemindersIndexRoute
   '/admin/satisfaction': typeof AdminSatisfactionIndexRoute
@@ -220,7 +219,7 @@ export interface FileRoutesById {
   '/survey/$token': typeof SurveyTokenRoute
   '/login/': typeof LoginIndexRoute
   '/admin/communications/': typeof AdminCommunicationsIndexRoute
-  '/admin/dashboard-and-analytics/': typeof AdminDashboardAndAnalyticsIndexRoute
+  '/admin/dashboard/': typeof AdminDashboardIndexRoute
   '/admin/opportunities/': typeof AdminOpportunitiesIndexRoute
   '/admin/reminders/': typeof AdminRemindersIndexRoute
   '/admin/satisfaction/': typeof AdminSatisfactionIndexRoute
@@ -247,7 +246,7 @@ export interface FileRouteTypes {
     | '/survey/$token'
     | '/login/'
     | '/admin/communications/'
-    | '/admin/dashboard-and-analytics/'
+    | '/admin/dashboard/'
     | '/admin/opportunities/'
     | '/admin/reminders/'
     | '/admin/satisfaction/'
@@ -272,7 +271,7 @@ export interface FileRouteTypes {
     | '/survey/$token'
     | '/login'
     | '/admin/communications'
-    | '/admin/dashboard-and-analytics'
+    | '/admin/dashboard'
     | '/admin/opportunities'
     | '/admin/reminders'
     | '/admin/satisfaction'
@@ -297,7 +296,7 @@ export interface FileRouteTypes {
     | '/survey/$token'
     | '/login/'
     | '/admin/communications/'
-    | '/admin/dashboard-and-analytics/'
+    | '/admin/dashboard/'
     | '/admin/opportunities/'
     | '/admin/reminders/'
     | '/admin/satisfaction/'
@@ -367,11 +366,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommunicationsIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
-    '/admin/dashboard-and-analytics/': {
-      id: '/admin/dashboard-and-analytics/'
-      path: '/dashboard-and-analytics'
-      fullPath: '/admin/dashboard-and-analytics/'
-      preLoaderRoute: typeof AdminDashboardAndAnalyticsIndexRouteImport
+    '/admin/dashboard/': {
+      id: '/admin/dashboard/'
+      path: '/dashboard'
+      fullPath: '/admin/dashboard/'
+      preLoaderRoute: typeof AdminDashboardIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/opportunities/': {
@@ -508,7 +507,7 @@ const AdminLeadAndClientRouteRouteWithChildren =
 interface AdminRouteRouteChildren {
   AdminLeadAndClientRouteRoute: typeof AdminLeadAndClientRouteRouteWithChildren
   AdminCommunicationsIndexRoute: typeof AdminCommunicationsIndexRoute
-  AdminDashboardAndAnalyticsIndexRoute: typeof AdminDashboardAndAnalyticsIndexRoute
+  AdminDashboardIndexRoute: typeof AdminDashboardIndexRoute
   AdminOpportunitiesIndexRoute: typeof AdminOpportunitiesIndexRoute
   AdminRemindersIndexRoute: typeof AdminRemindersIndexRoute
   AdminSatisfactionIndexRoute: typeof AdminSatisfactionIndexRoute
@@ -528,7 +527,7 @@ interface AdminRouteRouteChildren {
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminLeadAndClientRouteRoute: AdminLeadAndClientRouteRouteWithChildren,
   AdminCommunicationsIndexRoute: AdminCommunicationsIndexRoute,
-  AdminDashboardAndAnalyticsIndexRoute: AdminDashboardAndAnalyticsIndexRoute,
+  AdminDashboardIndexRoute: AdminDashboardIndexRoute,
   AdminOpportunitiesIndexRoute: AdminOpportunitiesIndexRoute,
   AdminRemindersIndexRoute: AdminRemindersIndexRoute,
   AdminSatisfactionIndexRoute: AdminSatisfactionIndexRoute,

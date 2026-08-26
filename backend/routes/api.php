@@ -4,11 +4,13 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientSatisfactionController;
 use App\Http\Controllers\CommunicationController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\OpportunityController;
 use App\Http\Controllers\PublicSurveyController;
 use App\Http\Controllers\ReminderController;
 use App\Http\Controllers\SalesRepresentativeController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\WinOpportunityController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -59,6 +61,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('satisfaction/{client}', [ClientSatisfactionController::class, 'show']);
     Route::post('satisfaction/{client}/surveys', [ClientSatisfactionController::class, 'store']);
     Route::delete('satisfaction/{client}/surveys/{survey}', [ClientSatisfactionController::class, 'destroy']);
+
+    Route::apiResource('contacts', ContactController::class)
+        ->only(['store', 'update', 'destroy']);
+
+    Route::get('dashboard', [DashboardController::class, 'index']);
 });
 
 Route::get('surveys/{token}', [PublicSurveyController::class, 'show']);

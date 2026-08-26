@@ -36,7 +36,7 @@ export function LoginForm({
     },
     onSuccess: (response) => {
       if (response.data.user.role === "admin")
-        return navigate({ to: "/admin/dashboard-and-analytics" })
+        return navigate({ to: "/admin/dashboard" })
     },
   })
 
